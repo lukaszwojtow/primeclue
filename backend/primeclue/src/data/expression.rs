@@ -44,7 +44,7 @@ pub fn parse(text: &str, data: &Data<'_>) -> Result<OutcomeProducer, String> {
     if !expression.is_empty() {
         return Err(format!("Not all text parsed {:?}", expression));
     }
-    Ok(OutcomeProducer { lhs, rhs, bool_producer, input })
+    Ok(OutcomeProducer { input, lhs, rhs, bool_producer })
 }
 
 pub struct OutcomeProducer {
@@ -514,7 +514,7 @@ mod test {
     fn check_nan_in_data() {
         let nan = "NaN";
         let n: f64 = nan.parse().unwrap();
-        assert!(n.is_nan(), true);
+        assert!(n.is_nan(), "{}", true);
         let expression = "column 1 < column 2";
         let data = vec![vec![nan, "2.0"]];
         let producer = parse(expression, &data).unwrap();

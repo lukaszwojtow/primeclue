@@ -88,7 +88,7 @@ fn training_group_generation_bench(c: &mut Criterion) {
     let (training_data, verification_data, _) =
         create_sample_data(1_000).shuffle().into_3_views_split();
     let mut training_group =
-        TrainingGroup::new(training_data, verification_data, Auc, 10, &[]).unwrap();
+        TrainingGroup::new(training_data, verification_data, &Auc, 10, &[]).unwrap();
     c.bench_function("training_group_generation_bench", |b| {
         b.iter(|| {
             training_group.next_generation();
@@ -119,7 +119,7 @@ fn next_generation_bench(c: &mut Criterion) {
     let (training_data, verification_data, _) =
         create_sample_data(1_000).shuffle().into_3_views_split();
 
-    let mut class_training = ClassTraining::new(10, vec![], Auc, Class::new(0));
+    let mut class_training = ClassTraining::new(10, vec![], &Auc, Class::new(0));
     c.bench_function("next_generation", |b| {
         b.iter(|| {
             class_training.next_generation(black_box(&training_data), &verification_data);
@@ -142,7 +142,7 @@ fn execute_tree_bench(c: &mut Criterion) {
     c.bench_function("execute_tree", |b| {
         b.iter(|| {
             for tree in &trees {
-                let _ = tree.execute_for_score(black_box(&data), Class::new(0), Auc);
+                let _ = tree.execute_for_score(black_box(&data), Class::new(0), &Auc);
             }
         })
     });

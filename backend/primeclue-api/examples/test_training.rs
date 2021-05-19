@@ -81,7 +81,7 @@ fn training_success(attempt: usize) -> f32 {
     let mut training = TrainingGroup::new(
         training_data,
         verification_data,
-        Objective::Accuracy,
+        &Objective::Accuracy,
         100,
         &Vec::new(),
     )

@@ -184,7 +184,7 @@ mod test {
     use crate::data::InputShape;
     use crate::exec::classifier::Classifier;
     use crate::exec::score::Objective::Auc;
-    use crate::exec::score::{Score, Threshold};
+    use crate::exec::score::{Objective, Score, Threshold};
     use crate::exec::scored_tree::ScoredTree;
     use crate::exec::training_group::TrainingGroup;
     use crate::exec::tree::Tree;
@@ -195,7 +195,8 @@ mod test {
     fn serialize_classifier() {
         for _ in 0..10 {
             let (d1, d2, _) = create_simple_data(100).shuffle().into_3_views_split();
-            let mut training_group = TrainingGroup::new(d1, d2, Auc, 5, &[]).unwrap();
+            let mut training_group: TrainingGroup<'_, Objective> =
+                TrainingGroup::new(d1, d2, &Auc, 5, &[]).unwrap();
             loop {
                 training_group.next_generation();
                 if let Ok(classifier) = training_group.classifier() {

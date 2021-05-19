@@ -24,6 +24,28 @@ use core::fmt;
 use std::cmp::Ordering;
 use std::cmp::Ordering::Equal;
 
+pub trait AsObjective: Sync + Send {
+    fn threshold(&self, outcomes: &[(f32, Outcome)], class: Class) -> Threshold;
+
+    fn objective(&self) -> Objective;
+
+    fn score(&self, threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> Score;
+}
+
+impl AsObjective for Objective {
+    fn threshold(&self, outcomes: &[(f32, Outcome)], class: Class) -> Threshold {
+        self.threshold(outcomes, class)
+    }
+
+    fn objective(&self) -> Objective {
+        *self
+    }
+
+    fn score(&self, threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> Score {
+        calc_score(outcomes, threshold, class, *self)
+    }
+}
+
 /// An enum used to gauge a classifier goodness. Training is performed to maximize this
 /// value.
 /// * `Cost` - use cost function with reward and penalty for correct / incorrect predictions respectively

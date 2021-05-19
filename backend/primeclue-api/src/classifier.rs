@@ -23,7 +23,7 @@ use primeclue::data::importer::{build_numbers_row, get_header_row, split_to_vec}
 use primeclue::data::{Input, InputShape, Outcome, Point};
 use primeclue::error::PrimeclueErr;
 use primeclue::exec::classifier::{Classifier, ClassifierScore};
-use primeclue::exec::score::Objective;
+use primeclue::exec::score::{AsObjective, Objective};
 use primeclue::exec::training_group::{Stats, TrainingGroup};
 use primeclue::serialization::serializator::SERIALIZED_FILE_EXT;
 use primeclue::serialization::{Deserializable, Serializable, Serializator};
@@ -102,7 +102,7 @@ fn start_training(
     let mut training = TrainingGroup::new(
         training_data,
         verification_data,
-        request.training_objective,
+        &request.training_objective,
         request.size,
         &forbidden_cols,
     )?;
@@ -141,7 +141,10 @@ struct TrainingStatus {
     classifier_score: ClassifierScore,
 }
 
-fn save(dst_dir: &Path, training: &mut TrainingGroup) -> Result<usize, PrimeclueErr> {
+fn save<T: AsObjective>(
+    dst_dir: &Path,
+    training: &mut TrainingGroup<'_, T>,
+) -> Result<usize, PrimeclueErr> {
     let classifier = training.classifier()?;
     let mut s = Serializator::new();
     classifier.serialize(&mut s);

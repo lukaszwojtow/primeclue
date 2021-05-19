@@ -22,23 +22,23 @@ use crate::data::outcome::Class;
 use crate::error::PrimeclueErr;
 use crate::exec::class_training::ClassTraining;
 use crate::exec::classifier::Classifier;
-use crate::exec::score::{Objective, Score};
+use crate::exec::score::{AsObjective, Score};
 use crate::exec::scored_tree::ScoredTree;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use serde::Serialize;
 use std::mem::replace;
 
 #[derive(Debug)]
-pub struct TrainingGroup {
+pub struct TrainingGroup<'o, T: AsObjective> {
     generation: u32,
     training_data: DataView,
     verification_data: DataView,
-    classes: Vec<ClassTraining>,
-    objective: Objective,
+    classes: Vec<ClassTraining<'o, T>>,
+    objective: &'o T,
     thread_pool: ThreadPool,
 }
 
-impl TrainingGroup {
+impl<'o, T: AsObjective> TrainingGroup<'o, T> {
     /// Creates a new [`TrainingGroup`] that can be used to train a classifier through
     /// its [`next_generation`] method.
     ///
@@ -51,11 +51,11 @@ impl TrainingGroup {
     pub fn new(
         training_data: DataView,
         verification_data: DataView,
-        objective: Objective,
+        objective: &'o T,
         size: usize,
         forbidden_cols: &[usize],
     ) -> Result<Self, PrimeclueErr> {
-        TrainingGroup::validate(&training_data, &verification_data)?;
+        validate(&training_data, &verification_data)?;
         let classes = (0..training_data.class_count())
             .map(|class| {
                 ClassTraining::new(
@@ -79,31 +79,6 @@ impl TrainingGroup {
             classes,
             thread_pool,
         })
-    }
-
-    fn validate(
-        training_data: &DataView,
-        verification_data: &DataView,
-    ) -> Result<(), PrimeclueErr> {
-        if training_data.cells().is_empty() {
-            PrimeclueErr::result("Data training set is empty".to_string())
-        } else if verification_data.cells().is_empty() {
-            PrimeclueErr::result("Data verification set is empty".to_string())
-        } else if verification_data.class_count() != training_data.class_count() {
-            PrimeclueErr::result(format!(
-                "Training and verification data differ in class count: {} vs {}",
-                training_data.class_count(),
-                verification_data.class_count()
-            ))
-        } else if verification_data.input_shape() != training_data.input_shape() {
-            PrimeclueErr::result(format!(
-                "Training and verification data differ in data size: {:?} vs {:?}",
-                training_data.input_shape(),
-                verification_data.input_shape()
-            ))
-        } else {
-            Ok(())
-        }
     }
 
     /// Performs training for one generation
@@ -134,9 +109,6 @@ impl TrainingGroup {
             node_count += best_tree.node_count();
             training_score += class.training_score()?;
         }
-        if self.objective != Objective::Cost {
-            training_score /= self.classes.len() as f32;
-        }
         Some(Stats { generation: self.generation, node_count, training_score })
     }
 
@@ -166,6 +138,28 @@ impl TrainingGroup {
     }
 }
 
+fn validate(training_data: &DataView, verification_data: &DataView) -> Result<(), PrimeclueErr> {
+    if training_data.cells().is_empty() {
+        PrimeclueErr::result("Data training set is empty".to_string())
+    } else if verification_data.cells().is_empty() {
+        PrimeclueErr::result("Data verification set is empty".to_string())
+    } else if verification_data.class_count() != training_data.class_count() {
+        PrimeclueErr::result(format!(
+            "Training and verification data differ in class count: {} vs {}",
+            training_data.class_count(),
+            verification_data.class_count()
+        ))
+    } else if verification_data.input_shape() != training_data.input_shape() {
+        PrimeclueErr::result(format!(
+            "Training and verification data differ in data size: {:?} vs {:?}",
+            training_data.input_shape(),
+            verification_data.input_shape()
+        ))
+    } else {
+        Ok(())
+    }
+}
+
 #[derive(Serialize, Debug, Copy, Clone)]
 pub struct Stats {
     pub generation: u32,
@@ -191,7 +185,7 @@ mod test {
         let data = create_simple_data(100);
         let (training_data, verification_data, _) = data.shuffle().into_3_views_split();
         let mut training_group =
-            TrainingGroup::new(training_data, verification_data, Auc, 3, &Vec::new()).unwrap();
+            TrainingGroup::new(training_data, verification_data, &Auc, 3, &Vec::new()).unwrap();
         training_group.next_generation();
         training_group.next_generation();
         training_group.next_generation();
@@ -202,7 +196,7 @@ mod test {
     fn test_get_tree() {
         let (training_data, verification_data) = create_simple_data(1_000).into_2_views_split();
         let mut training_group =
-            TrainingGroup::new(training_data, verification_data, Auc, 10, &Vec::new()).unwrap();
+            TrainingGroup::new(training_data, verification_data, &Auc, 10, &Vec::new()).unwrap();
 
         for _ in 0..1_000 {
             training_group.next_generation();

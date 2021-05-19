@@ -21,7 +21,7 @@ use crate::data::data_set::DataView;
 use crate::data::outcome::Class;
 use crate::data::InputShape;
 use crate::exec::functions::TWO_ARG_FUNCTIONS;
-use crate::exec::score::{Objective, Score};
+use crate::exec::score::{AsObjective, Score};
 use crate::exec::scored_tree::ScoredTree;
 use crate::exec::tree::Tree;
 use crate::rand::GET_RNG;
@@ -33,36 +33,32 @@ use rayon::iter::ParallelIterator;
 use std::cmp::Ordering::Equal;
 use std::collections::HashMap;
 use std::fmt::{Debug, Error, Formatter};
+use std::marker::PhantomData;
 use std::mem::replace;
 
 #[derive(Eq, PartialEq, Hash, Copy, Clone)]
 struct GroupId(u64);
 
-pub struct ClassTraining {
+pub struct ClassTraining<'o, T: AsObjective> {
     next_id: GroupId,
-    objective: Objective,
+    objective: &'o T,
     size: usize,
     node_limit: usize,
     forbidden_cols: Vec<usize>,
     best_tree: Option<ScoredTree>,
     class: Class,
-    groups: HashMap<GroupId, ClassGroup>,
+    groups: HashMap<GroupId, ClassGroup<T>>,
 }
 
-impl Debug for ClassTraining {
+impl<T: AsObjective> Debug for ClassTraining<'_, T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{:?}", self.class)
     }
 }
 
-impl ClassTraining {
+impl<'o, T: AsObjective> ClassTraining<'o, T> {
     #[must_use]
-    pub fn new(
-        size: usize,
-        forbidden_cols: Vec<usize>,
-        objective: Objective,
-        class: Class,
-    ) -> Self {
+    pub fn new(size: usize, forbidden_cols: Vec<usize>, objective: &'o T, class: Class) -> Self {
         let groups = HashMap::new();
         ClassTraining {
             next_id: GroupId(1),
@@ -91,11 +87,12 @@ impl ClassTraining {
 
     pub fn next_generation(&mut self, training_data: &DataView, verification_data: &DataView) {
         self.fill_up(training_data.input_shape());
-        let objective = self.objective;
+        let objective = &self.objective; //.clone();
         let class = self.class;
         let length = self.size;
         let forbidden_cols = &self.forbidden_cols;
         self.groups.par_iter_mut().for_each(|(_, group)| {
+            // TODO
             group.breed(forbidden_cols, length);
             group.execute_and_score(objective, training_data, class);
             group.remove_weak_trees(length);
@@ -191,22 +188,23 @@ impl ClassTraining {
     }
 }
 
-pub struct ClassGroup {
+pub struct ClassGroup<T: AsObjective> {
     id: GroupId,
     fresh: Vec<Tree>,
     scored: Vec<ScoredTree>,
+    phantom: PhantomData<T>,
 }
 
-impl Debug for ClassGroup {
+impl<T: AsObjective> Debug for ClassGroup<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(f, "{}", self.id.0)
     }
 }
 
-impl ClassGroup {
+impl<T: AsObjective> ClassGroup<T> {
     fn create_joined(
         group_size: usize,
-        existing: &HashMap<GroupId, ClassGroup>,
+        existing: &HashMap<GroupId, ClassGroup<T>>,
         id: GroupId,
         forbidden_cols: &[usize],
     ) -> Option<Self> {
@@ -241,7 +239,7 @@ impl ClassGroup {
         id: GroupId,
         tree: Tree,
         forbidden_cols: &[usize],
-    ) -> ClassGroup {
+    ) -> ClassGroup<T> {
         let mut trees = Vec::with_capacity(group_size);
         trees.push(tree);
         while trees.len() < group_size {
@@ -250,7 +248,7 @@ impl ClassGroup {
             t.mutate(forbidden_cols);
             trees.push(t);
         }
-        ClassGroup { id, fresh: trees, scored: Vec::new() }
+        ClassGroup { id, fresh: trees, scored: Vec::new(), phantom: PhantomData::default() }
     }
 
     fn breed(&mut self, forbidden_cols: &[usize], count: usize) {
@@ -279,11 +277,11 @@ impl ClassGroup {
         self.scored.truncate(length);
     }
 
-    fn execute_and_score(&mut self, objective: Objective, data: &DataView, class: Class) {
+    fn execute_and_score(&mut self, objective: &T, data: &DataView, class: Class) {
         let len = self.fresh.len();
         let trees = replace(&mut self.fresh, Vec::with_capacity(len));
         for tree in trees {
-            if let Some(score) = tree.execute_for_score(data, class, objective) {
+            if let Some(score) = tree.execute_for_score::<T>(data, class, objective) {
                 self.scored.push(ScoredTree::new(tree, score))
             }
         }
@@ -296,13 +294,13 @@ impl ClassGroup {
     }
 }
 
-fn generate_group(
-    training: &ClassTraining,
+fn generate_group<T: AsObjective>(
+    training: &ClassTraining<'_, T>,
     input_shape: &InputShape,
     id: GroupId,
     forbidden_cols: &[usize],
     max_depth: usize,
-) -> ClassGroup {
+) -> ClassGroup<T> {
     let mut rng = GET_RNG();
     if !training.groups.is_empty() && rng.gen_bool(0.5) {
         if let Some(group) =

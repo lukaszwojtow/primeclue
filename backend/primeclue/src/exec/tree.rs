@@ -22,7 +22,7 @@ use crate::data::outcome::{sort_guesses, Class};
 use crate::data::{Input, InputShape};
 use crate::exec::functions::DoubleArgFunction;
 use crate::exec::node::{Node, Weighted};
-use crate::exec::score::{calc_score, Objective, Score};
+use crate::exec::score::{AsObjective, Score};
 use crate::math::valid;
 use crate::rand::GET_RNG;
 use crate::serialization::{Deserializable, Serializable, Serializator};
@@ -126,11 +126,11 @@ impl Tree {
     }
 
     #[must_use]
-    pub fn execute_for_score(
+    pub fn execute_for_score<T: AsObjective>(
         &self,
         data: &DataView,
         class: Class,
-        objective: Objective,
+        objective: &T,
     ) -> Option<Score> {
         if data.cells().get(0, 0).len() < 2 {
             None
@@ -141,7 +141,7 @@ impl Tree {
             }
             let outcomes = sort_guesses(guesses, data.outcomes());
             let threshold = objective.threshold(&outcomes, class);
-            Some(calc_score(&outcomes, threshold, class, objective))
+            Some(objective.score(threshold, &outcomes, class))
         }
     }
 

@@ -1,9 +1,9 @@
 [package]
 name = "primeclue-api"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Łukasz Wojtów <lukasz.wojtow@gmail.com>"]
 edition = "2018"
-license = "AGPL-3.0-or-later"
+license = "AGPL-3.0"
 
 [dependencies]
 primeclue = {path = "../primeclue" }

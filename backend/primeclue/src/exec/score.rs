@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0
 /*
    Primeclue: Machine Learning and Data Mining
    Copyright (C) 2020 Łukasz Wojtów
@@ -42,7 +42,12 @@ impl AsObjective for Objective {
     }
 
     fn score(&self, threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> Score {
-        calc_score(outcomes, threshold, class, *self)
+        let value = match self {
+            Objective::Auc => calculate_auc(&outcomes, class),
+            Objective::Accuracy => calculate_accuracy(threshold, &outcomes, class),
+            Objective::Cost => calculate_cost(threshold, &outcomes, class),
+        };
+        Score { objective: *self, class, value, threshold }
     }
 }
 
@@ -221,21 +226,6 @@ impl Deserializable for Score {
         let threshold = Threshold::deserialize(s)?;
         Ok(Score { objective, class, value, threshold })
     }
-}
-
-#[must_use]
-pub fn calc_score(
-    outcomes: &[(f32, Outcome)],
-    threshold: Threshold,
-    class: Class,
-    objective: Objective,
-) -> Score {
-    let value = match objective {
-        Objective::Auc => calculate_auc(&outcomes, class),
-        Objective::Accuracy => calculate_accuracy(threshold, &outcomes, class),
-        Objective::Cost => calculate_cost(threshold, &outcomes, class),
-    };
-    Score { objective, class, value, threshold }
 }
 
 #[must_use]

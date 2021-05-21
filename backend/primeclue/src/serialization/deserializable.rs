@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: AGPL-3.0
 /*
    Primeclue: Machine Learning and Data Mining
    Copyright (C) 2020 Łukasz Wojtów

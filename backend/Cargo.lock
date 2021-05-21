@@ -1326,7 +1326,7 @@ checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
 
 [[package]]
 name = "primeclue"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "criterion",
  "dirs",
@@ -1339,7 +1339,7 @@ dependencies = [
 
 [[package]]
 name = "primeclue-api"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "actix-cors",
  "actix-web",

@@ -22,8 +22,7 @@ use primeclue::data::outcome::Class;
 use primeclue::data::{Input, Outcome, Point};
 use primeclue::exec::score::Objective;
 use primeclue::exec::training_group::TrainingGroup;
-use primeclue::rand::GET_RNG;
-use rand::Rng;
+use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 
 // A difficult-ish problem for ML. Not only test data is never seen during training, but it also
@@ -52,13 +51,13 @@ fn training_success(attempt: usize) -> f32 {
     classes.insert(Class::new(3), "D".to_owned());
     let string_classes = classes.iter().map(|(c, s)| (s.clone(), *c)).collect::<HashMap<_, _>>();
     let mut data_set = DataSet::new(classes);
-    let mut rng = GET_RNG();
+    let mut rng = thread_rng();
     let max = 100;
     for i in 0..3 {
         for _ in 0..1_000 {
-            let a = i * max + rng.gen_range(0, max);
-            let b = i * max + rng.gen_range(0, max);
-            let c = i * max + rng.gen_range(0, max);
+            let a = i * max + rng.gen_range(0..max);
+            let b = i * max + rng.gen_range(0..max);
+            let c = i * max + rng.gen_range(0..max);
             let output = if a % 15 == 0 {
                 "A"
             } else if (b + 2) % 5 == 0 {

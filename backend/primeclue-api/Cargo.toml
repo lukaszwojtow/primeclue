@@ -10,9 +10,9 @@ primeclue = {path = "../primeclue" }
 actix-web = "1.0.8"
 actix-cors = "0.1.0"
 jemallocator = "0.3.0"
-serde = { version = "1.0.91", features = ["derive"] }
-serde_json = "1.0.39"
-human-panic = "1.0.1"
-rand = "0.7"
-threadpool = "1.7.1"
+serde = { version = "1.*", features = ["derive"] }
+serde_json = "1.*"
+human-panic = "1.*"
+rand = "0.8.*"
+threadpool = "1.*"
 

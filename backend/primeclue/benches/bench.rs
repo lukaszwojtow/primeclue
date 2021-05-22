@@ -18,6 +18,7 @@
 */
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use primeclue::contrand::GET_RNG;
 use primeclue::data::data_set::DataSet;
 use primeclue::data::outcome::Class;
 use primeclue::data::{Input, InputShape, Outcome, Point};
@@ -25,7 +26,6 @@ use primeclue::exec::class_training::ClassTraining;
 use primeclue::exec::score::Objective::{Auc, Cost};
 use primeclue::exec::training_group::TrainingGroup;
 use primeclue::exec::tree::Tree;
-use primeclue::rand::GET_RNG;
 use rand::Rng;
 use std::collections::HashMap;
 
@@ -33,9 +33,9 @@ fn select_node(c: &mut Criterion) {
     let mut rng = GET_RNG();
     let mut trees = vec![];
     for _ in 0..100 {
-        let max_depth = rng.gen_range(2, 10);
-        let data_prob = rng.gen_range(0.01, 0.99);
-        let branch_prob = rng.gen_range(0.01, 0.99);
+        let max_depth = rng.gen_range(2..10);
+        let data_prob = rng.gen_range(0.01..0.99);
+        let branch_prob = rng.gen_range(0.01..0.99);
         let tree = Tree::new(&InputShape::new(1, 10), max_depth, &[], branch_prob, data_prob);
         trees.push(tree)
     }
@@ -74,7 +74,7 @@ fn threshold_cost_bench(c: &mut Criterion) {
     let mut rng = GET_RNG();
     let mut outcomes = vec![];
     for p in data.iter() {
-        outcomes.push((rng.gen_range(0.0, 1.0), p.data().1.clone()));
+        outcomes.push((rng.gen_range(0.0..1.0), p.data().1.clone()));
     }
     c.bench_function("threshold_cost", |b| {
         b.iter(|| {
@@ -132,9 +132,9 @@ fn execute_tree_bench(c: &mut Criterion) {
     let mut rng = GET_RNG();
     let mut trees = vec![];
     for _ in 0..100 {
-        let max_depth = rng.gen_range(2, 10);
-        let data_prob = rng.gen_range(0.01, 0.99);
-        let branch_prob = rng.gen_range(0.01, 0.99);
+        let max_depth = rng.gen_range(2..10);
+        let data_prob = rng.gen_range(0.01..0.99);
+        let branch_prob = rng.gen_range(0.01..0.99);
         let tree = Tree::new(data.input_shape(), max_depth, &[], branch_prob, data_prob);
         trees.push(tree)
     }
@@ -154,9 +154,9 @@ fn create_tree_bench(c: &mut Criterion) {
         b.iter(|| {
             let mut rng = GET_RNG();
             for _ in 0..100 {
-                let max_depth = rng.gen_range(2, 10);
-                let data_prob = rng.gen_range(0.01, 0.99);
-                let branch_prob = rng.gen_range(0.01, 0.99);
+                let max_depth = rng.gen_range(2..10);
+                let data_prob = rng.gen_range(0.01..0.99);
+                let branch_prob = rng.gen_range(0.01..0.99);
                 let _ = Tree::new(
                     black_box(&InputShape::new(1, 6)),
                     max_depth,

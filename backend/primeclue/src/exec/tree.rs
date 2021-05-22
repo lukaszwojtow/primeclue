@@ -17,6 +17,7 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use crate::contrand::GET_RNG;
 use crate::data::data_set::DataView;
 use crate::data::outcome::{sort_guesses, Class};
 use crate::data::{Input, InputShape};
@@ -24,7 +25,6 @@ use crate::exec::functions::DoubleArgFunction;
 use crate::exec::node::{Node, Weighted};
 use crate::exec::score::{AsObjective, Score};
 use crate::math::valid;
-use crate::rand::GET_RNG;
 use crate::serialization::{Deserializable, Serializable, Serializator};
 use rand::Rng;
 use std::collections::HashSet;
@@ -78,10 +78,10 @@ impl Tree {
 
     pub fn change_weights(&mut self) {
         let mut rng = GET_RNG();
-        let count = rng.gen_range(0, (self.node_count() as f32).sqrt() as i32);
+        let count = rng.gen_range(0..(self.node_count() as f32).sqrt() as i32);
         for _ in 0..count {
             let node = self.select_random_node();
-            node.change_weight(rng.gen_range(0.0, 2.0));
+            node.change_weight(rng.gen_range(0.0..2.0));
         }
     }
 
@@ -92,7 +92,7 @@ impl Tree {
     }
 
     pub fn select_random_node(&mut self) -> &mut Weighted {
-        let node_id = GET_RNG().gen_range(0, self.node_count());
+        let node_id = GET_RNG().gen_range(0..self.node_count());
         self.select_node_mut(node_id)
     }
 
@@ -156,11 +156,11 @@ impl Tree {
 
 #[cfg(test)]
 pub(crate) mod test {
+    use crate::contrand::GET_RNG;
     use crate::data::InputShape;
     use crate::exec::functions::{MATH_CONSTANTS, ONE_ARG_FUNCTIONS, TWO_ARG_FUNCTIONS};
     use crate::exec::node::{Node, Weighted};
     use crate::exec::tree::Tree;
-    use crate::rand::GET_RNG;
     use crate::serialization::serializator::test::test_serialization;
     use rand::Rng;
 
@@ -168,7 +168,7 @@ pub(crate) mod test {
     fn serialize_tree() {
         let input_shape = InputShape::new(10, 20);
         for _ in 0..10_000 {
-            let max_depth = GET_RNG().gen_range(2, 15);
+            let max_depth = GET_RNG().gen_range(2..15);
             let tree = Tree::new(&input_shape, max_depth, &Vec::new(), 0.5, 0.5);
             test_serialization(tree);
         }

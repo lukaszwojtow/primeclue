@@ -22,8 +22,7 @@ use primeclue::data::outcome::Class;
 use primeclue::data::{Input, Outcome, Point};
 use primeclue::exec::score::Objective::Auc;
 use primeclue::exec::tree::Tree;
-use primeclue::rand::GET_RNG;
-use rand::Rng;
+use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 use std::ops::Add;
 use std::time::{Duration, Instant};
@@ -57,11 +56,11 @@ fn get_data() -> DataSet {
     classes.insert(Class::new(3), "D".to_owned());
     let string_classes = classes.iter().map(|(c, s)| (s.clone(), *c)).collect::<HashMap<_, _>>();
     let mut data_set = DataSet::new(classes);
-    let mut rng = GET_RNG();
+    let mut rng = thread_rng();
     for _ in 0..4 * 250 {
-        let a = rng.gen_range(0, 100);
-        let b = rng.gen_range(0, 100);
-        let c = rng.gen_range(0, 100);
+        let a = rng.gen_range(0..100);
+        let b = rng.gen_range(0..100);
+        let c = rng.gen_range(0..100);
 
         let output = if a % 15 == 0 {
             "A"

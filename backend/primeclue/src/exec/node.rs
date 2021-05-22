@@ -17,11 +17,11 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use crate::contrand::GET_RNG;
 use crate::data::{Data, InputShape};
 use crate::exec::functions::{DoubleArgFunction, MathConst, SingleArgFunction};
 use crate::exec::functions::{MATH_CONSTANTS, ONE_ARG_FUNCTIONS, TWO_ARG_FUNCTIONS};
 use crate::math::std_dev;
-use crate::rand::GET_RNG;
 use crate::serialization::deserializable::Deserializable;
 use crate::serialization::serializator::Serializator;
 use crate::serialization::Serializable;
@@ -49,7 +49,7 @@ impl Deserializable for Weight {
 
 impl Weight {
     pub fn generate() -> Self {
-        Weight { 0: GET_RNG().gen_range(-1.618, 1.618) }
+        Weight { 0: GET_RNG().gen_range(-1.618..1.618) }
     }
 
     #[must_use]

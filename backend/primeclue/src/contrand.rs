@@ -41,7 +41,7 @@ fn predictable_rng() -> Box<dyn RngCore> {
 
 #[cfg(test)]
 mod test {
-    use crate::rand::predictable_rng;
+    use crate::contrand::predictable_rng;
     use rand::Rng;
 
     #[test]
@@ -51,7 +51,7 @@ mod test {
         for _ in 0..1024 {
             assert_eq!(rng1.gen::<usize>(), rng2.gen::<usize>());
             assert_eq!(rng1.gen::<f64>(), rng2.gen::<f64>());
-            assert_eq!(rng1.gen_range(0, 1024), rng2.gen_range(0, 1024));
+            assert_eq!(rng1.gen_range(0..1024), rng2.gen_range(0..1024));
             assert_eq!(rng1.gen_bool(0.3), rng2.gen_bool(0.3));
         }
     }

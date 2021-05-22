@@ -17,10 +17,10 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use crate::contrand::GET_RNG;
 use crate::data::outcome::Class;
 use crate::data::{Data, Input, InputShape, Outcome};
 use crate::error::PrimeclueErr;
-use crate::rand::GET_RNG;
 use crate::serialization::{Deserializable, Serializable, Serializator};
 use rand::seq::SliceRandom;
 use rand::Rng;
@@ -95,7 +95,7 @@ impl DataView {
         let mut cost = 0.0;
         let mut rng = GET_RNG();
         for outcome in &self.outcomes {
-            let mut index = rng.gen_range(0, self.outcomes.len()) as i32;
+            let mut index = rng.gen_range(0..self.outcomes.len()) as i32;
             for (class, count) in &self.class_count {
                 index -= *count as i32;
                 if index <= 0 {
@@ -396,10 +396,10 @@ impl Deserializable for DataSet {
 
 #[cfg(test)]
 pub(crate) mod test {
+    use crate::contrand::GET_RNG;
     use crate::data::data_set::{DataSet, Rewards};
     use crate::data::outcome::Class;
     use crate::data::{Input, Outcome, Point};
-    use crate::rand::GET_RNG;
     use crate::serialization::serializator::test::test_serialization;
     use rand::Rng;
     use std::collections::HashMap;
@@ -563,7 +563,7 @@ pub(crate) mod test {
         let mut rng = GET_RNG();
         for i in 0..count {
             let a = i as f32;
-            let b = rng.gen_range(0.0, count as f32);
+            let b = rng.gen_range(0.0..count as f32);
             data.add_data_point(Point::new(
                 Input::from_vector(vec![vec![a, b]]).unwrap(),
                 if a > b {
@@ -585,9 +585,9 @@ pub(crate) mod test {
         let mut data = DataSet::new(classes);
         let mut rng = GET_RNG();
         for _ in 0..3 * 3 * 10_000 {
-            let a = rng.gen_range(0, 100);
-            let b = rng.gen_range(0, 100);
-            let c = rng.gen_range(0, 100);
+            let a = rng.gen_range(0..100);
+            let b = rng.gen_range(0..100);
+            let c = rng.gen_range(0..100);
             let class = if a > b && a > c {
                 Class::new(0)
             } else if b > a && b > c {

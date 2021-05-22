@@ -514,21 +514,21 @@ mod test {
     }
 
     fn get_biased_outcomes() -> Vec<(f32, Outcome)> {
-        use crate::rand::GET_RNG;
+        use crate::contrand::GET_RNG;
         use rand::Rng;
 
         let mut rng = GET_RNG();
         let mut outcomes: Vec<(f32, Outcome)> = vec![];
         for _ in 0..50 {
-            let guess = rng.gen_range(0.0, 0.7);
-            let reward = rng.gen_range(0.0, 1.0);
-            let penalty = rng.gen_range(-1.0, 0.0);
+            let guess = rng.gen_range(0.0..0.7);
+            let reward = rng.gen_range(0.0..1.0);
+            let penalty = rng.gen_range(-1.0..0.0);
             outcomes.push((guess, Outcome::new(Class::new(0), reward, penalty)));
         }
         for _ in 0..50 {
-            let guess = rng.gen_range(0.3, 1.0);
-            let reward = rng.gen_range(0.0, 1.0);
-            let penalty = rng.gen_range(-1.0, 0.0);
+            let guess = rng.gen_range(0.3..1.0);
+            let reward = rng.gen_range(0.0..1.0);
+            let penalty = rng.gen_range(-1.0..0.0);
             outcomes.push((guess, Outcome::new(Class::new(1), reward, penalty)));
         }
         outcomes.sort_by(|(g1, _), (g2, _)| g1.partial_cmp(g2).unwrap());

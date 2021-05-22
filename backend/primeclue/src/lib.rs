@@ -37,10 +37,10 @@ variant_size_differences,
 #[macro_use]
 extern crate lazy_static;
 
+pub mod contrand;
 pub mod data;
 pub mod error;
 pub mod exec;
 pub mod math;
-pub mod rand;
 pub mod serialization;
 pub mod user;

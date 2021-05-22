@@ -17,8 +17,8 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use crate::contrand::GET_RNG;
 use crate::error::PrimeclueErr;
-use crate::rand::GET_RNG;
 use crate::serialization::{Deserializable, Serializable, Serializator};
 use rand::Rng;
 use std::fmt::{Debug, Error, Formatter};
@@ -126,9 +126,9 @@ impl InputShape {
     pub fn random_row_column(&self, forbidden_cols: &[usize]) -> (usize, usize) {
         let mut rng = GET_RNG();
         loop {
-            let col = rng.gen_range(0, self.columns);
+            let col = rng.gen_range(0..self.columns);
             if !forbidden_cols.contains(&col) {
-                return (rng.gen_range(0, self.rows), col);
+                return (rng.gen_range(0..self.rows), col);
             }
         }
     }
@@ -152,8 +152,8 @@ impl Deserializable for InputShape {
 
 #[cfg(test)]
 mod test {
+    use crate::contrand::GET_RNG;
     use crate::data::{Data, InputShape};
-    use crate::rand::GET_RNG;
     use rand::Rng;
 
     #[test]
@@ -173,8 +173,8 @@ mod test {
         let shape = InputShape::new(1, columns);
         for _ in 0..100 {
             let mut forbidden = vec![];
-            for _ in 1..rng.gen_range(2, columns) {
-                forbidden.push(rng.gen_range(0, columns))
+            for _ in 1..rng.gen_range(2..columns) {
+                forbidden.push(rng.gen_range(0..columns))
             }
             for _ in 0..100 {
                 let (_, column) = shape.random_row_column(&forbidden);

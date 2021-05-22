@@ -17,6 +17,7 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+use crate::contrand::GET_RNG;
 use crate::data::data_set::DataView;
 use crate::data::outcome::Class;
 use crate::data::InputShape;
@@ -24,7 +25,6 @@ use crate::exec::functions::TWO_ARG_FUNCTIONS;
 use crate::exec::score::{AsObjective, Score};
 use crate::exec::scored_tree::ScoredTree;
 use crate::exec::tree::Tree;
-use crate::rand::GET_RNG;
 use rand::prelude::SliceRandom;
 use rand::seq::IteratorRandom;
 use rand::Rng;
@@ -228,8 +228,8 @@ impl<T: AsObjective> ClassGroup<T> {
         forbidden_cols: &[usize],
     ) -> Self {
         let mut rng = GET_RNG();
-        let data_prob = rng.gen_range(0.01, 0.99);
-        let branch_prob = rng.gen_range(0.01, 0.99);
+        let data_prob = rng.gen_range(0.01..0.99);
+        let branch_prob = rng.gen_range(0.01..0.99);
         let tree = Tree::new(input_shape, max_depth, forbidden_cols, branch_prob, data_prob);
         ClassGroup::create_from_tree(group_size, id, tree, forbidden_cols)
     }

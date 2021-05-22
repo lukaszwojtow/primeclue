@@ -84,8 +84,6 @@ Then go to [http://localhost:8080/](http://localhost:8080/)
 I recorded a couple of short <a href="VIDEOS.md">videos</a> explaining basic steps. Also, I write some random thoughts and instructions on PrimeClue's 
 <a href="http://blog.primeclue.com/">blog</a>
 
-you can ask for help on our 
-
 
 <h3>Contributing</h3>
 I'm neither Rust nor AI expert so probably a lot of things can be improved. 

@@ -94,4 +94,4 @@ I will gladly accept features, fixes and even one-liners to make the code more i
 <h3>Contact author</h3>
 You can contact me at lukasz.wojtow@gmail.com
 <h3>License</h3>
-Affero GPL 3.0 or later.
+Affero GPL 3.0

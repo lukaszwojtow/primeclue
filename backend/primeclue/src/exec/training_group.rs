@@ -26,7 +26,6 @@ use crate::exec::score::{AsObjective, Score};
 use crate::exec::scored_tree::ScoredTree;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use serde::Serialize;
-use std::mem::replace;
 
 #[derive(Debug)]
 pub struct TrainingGroup<'o, T: AsObjective> {
@@ -86,7 +85,7 @@ impl<'o, T: AsObjective> TrainingGroup<'o, T> {
         self.generation += 1;
         let training_data = &self.training_data;
         let verification_data = &self.verification_data;
-        let mut classes = replace(&mut self.classes, vec![]);
+        let mut classes = std::mem::take(&mut self.classes);
         self.thread_pool.scope(|s| {
             for class in &mut classes {
                 s.spawn(move |_| {

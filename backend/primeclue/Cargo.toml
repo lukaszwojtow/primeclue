@@ -6,12 +6,12 @@ edition = "2018"
 license = "AGPL-3.0"
 
 [dependencies]
-lazy_static = "1.4.0"
-rand = "0.8.*"
-rand_xorshift = "0.3.*"
-serde = { version = "1.*", features = ["derive"] }
-rayon = "1.*"
-dirs = "2.*"
+lazy_static = "1"
+rand = "0.8"
+rand_xorshift = "0.3"
+serde = { version = "1", features = ["derive"] }
+rayon = "1"
+dirs = "2"
 
 [dev-dependencies]
 criterion = "0.3"

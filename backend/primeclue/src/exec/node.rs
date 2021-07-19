@@ -146,15 +146,15 @@ impl Weighted {
     ) -> Weighted {
         let mut rng = GET_RNG();
         let current_depth = current_depth + 1;
+        let wn = Weighted::new(
+            current_depth,
+            input_shape,
+            branch_prob,
+            max_depth,
+            forbidden_cols,
+            data_prob,
+        );
         if rng.gen_bool(branch_prob) {
-            let wn1 = Weighted::new(
-                current_depth,
-                input_shape,
-                branch_prob,
-                max_depth,
-                forbidden_cols,
-                data_prob,
-            );
             let wn2 = Weighted::new(
                 current_depth,
                 input_shape,
@@ -164,18 +164,10 @@ impl Weighted {
                 data_prob,
             );
             let n =
-                Node::DoubleArgFunction(TWO_ARG_FUNCTIONS.choose(&mut rng).unwrap(), wn1, wn2);
+                Node::DoubleArgFunction(TWO_ARG_FUNCTIONS.choose(&mut rng).unwrap(), wn, wn2);
             let w = Weight::generate();
             Weighted { w, n: Box::new(n) }
         } else {
-            let wn = Weighted::new(
-                current_depth,
-                input_shape,
-                branch_prob,
-                max_depth,
-                forbidden_cols,
-                data_prob,
-            );
             let n = Node::SingleArgFunction(ONE_ARG_FUNCTIONS.choose(&mut rng).unwrap(), wn);
             let w = Weight::generate();
             Weighted { w, n: Box::new(n) }

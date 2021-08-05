@@ -7,7 +7,7 @@ pub fn std_dev(values: &[f32]) -> Vec<f32> {
 }
 
 pub fn median(values: &mut [f32]) -> f32 {
-    values.sort_by(|v1, v2| v1.partial_cmp(&v2).unwrap());
+    values.sort_by(|v1, v2| v1.partial_cmp(v2).unwrap());
     let middle = values.len() / 2;
     if values.len() % 2 == 0 {
         (values[middle] + values[middle - 1]) / 2.0

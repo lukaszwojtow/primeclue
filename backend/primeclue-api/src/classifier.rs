@@ -98,7 +98,7 @@ fn start_training(
         split_into_sets(data_set, request.keep_unseen_data);
     print_cost_range(&training_data, &test_data);
     let forbidden_cols = parse_forbidden_columns(&request.forbidden_columns)?;
-    let dst_dir = create_classifier_dir(&request)?;
+    let dst_dir = create_classifier_dir(request)?;
     let mut training = TrainingGroup::new(
         training_data,
         verification_data,
@@ -148,7 +148,7 @@ fn save<T: AsObjective>(
     let classifier = training.classifier()?;
     let mut s = Serializator::new();
     classifier.serialize(&mut s);
-    s.save(&dst_dir, CLASSIFIER_FILE_NAME).map_err(PrimeclueErr::from)
+    s.save(dst_dir, CLASSIFIER_FILE_NAME).map_err(PrimeclueErr::from)
 }
 
 fn read_data(request: &CreateRequest) -> Result<DataSet, PrimeclueErr> {
@@ -224,7 +224,7 @@ impl ClassifyRequest {
         numbers: &[Vec<f32>],
     ) -> Result<(), PrimeclueErr> {
         for classifier in classifiers {
-            check_size(&numbers, classifier.input_shape())?;
+            check_size(numbers, classifier.input_shape())?;
         }
         Ok(())
     }
@@ -261,7 +261,7 @@ fn build_responses_list<'a>(
 ) -> Vec<Vec<&'a str>> {
     let mut responses_list = vec![];
     for classifier in classifiers {
-        let responses = classify_all(&numbers, &classifier);
+        let responses = classify_all(numbers, classifier);
         responses_list.push(responses);
     }
     responses_list

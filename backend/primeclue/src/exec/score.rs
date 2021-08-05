@@ -43,9 +43,9 @@ impl AsObjective for Objective {
 
     fn score(&self, threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> Score {
         let value = match self {
-            Objective::Auc => calculate_auc(&outcomes, class),
-            Objective::Accuracy => calculate_accuracy(threshold, &outcomes, class),
-            Objective::Cost => calculate_cost(threshold, &outcomes, class),
+            Objective::Auc => calculate_auc(outcomes, class),
+            Objective::Accuracy => calculate_accuracy(threshold, outcomes, class),
+            Objective::Cost => calculate_cost(threshold, outcomes, class),
         };
         Score { objective: *self, class, value, threshold }
     }

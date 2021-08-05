@@ -92,7 +92,7 @@ impl Classifier {
 
     pub fn sorted_trees(&self) -> Vec<&ScoredTree> {
         let mut scores = self.trees.iter().collect::<Vec<_>>();
-        scores.sort_unstable_by(|&t1, &t2| t1.partial_cmp(&t2).unwrap_or(Ordering::Equal));
+        scores.sort_unstable_by(|&t1, &t2| t1.partial_cmp(t2).unwrap_or(Ordering::Equal));
         scores
     }
 
@@ -100,7 +100,7 @@ impl Classifier {
         let trees = self.sorted_trees();
         let mut responses = vec![""; data.cells().get(0, 0).len()];
         for tree in trees {
-            let values = tree.execute(&data);
+            let values = tree.execute(data);
             let class_string = self.classes.get(&tree.score().class()).unwrap();
             for (value, response) in values.iter().zip(responses.iter_mut()) {
                 match tree.guess(*value) {

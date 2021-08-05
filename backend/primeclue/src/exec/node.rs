@@ -370,12 +370,12 @@ impl Node {
         let mut rng = GET_RNG();
         match self {
             Node::SingleArgFunction(ref mut f, _) => {
-                *f = &ONE_ARG_FUNCTIONS.choose(&mut rng).unwrap()
+                *f = ONE_ARG_FUNCTIONS.choose(&mut rng).unwrap()
             }
             Node::DoubleArgFunction(ref mut f, _, _) => {
-                *f = &TWO_ARG_FUNCTIONS.choose(&mut rng).unwrap()
+                *f = TWO_ARG_FUNCTIONS.choose(&mut rng).unwrap()
             }
-            Node::MathConstant(ref mut c) => *c = &MATH_CONSTANTS.choose(&mut rng).unwrap(),
+            Node::MathConstant(ref mut c) => *c = MATH_CONSTANTS.choose(&mut rng).unwrap(),
             Node::DataValue(ref mut row, ref mut column)
             | Node::StdDev(ref mut row, ref mut column) => {
                 let (r, c) = input_shape.random_row_column(forbidden_cols);

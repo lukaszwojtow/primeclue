@@ -77,7 +77,7 @@ impl ScoredTree {
         trees.iter().fold(None, |last, next| match last {
             None => Some(next),
             Some(last) => {
-                if next.partial_cmp(&last).unwrap() == Greater {
+                if next.partial_cmp(last).unwrap() == Greater {
                     Some(next)
                 } else {
                     Some(last)

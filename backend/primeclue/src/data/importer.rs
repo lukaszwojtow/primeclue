@@ -124,7 +124,7 @@ pub struct Rewards {
 
 pub fn build_data_set(r: &ClassRequest) -> Result<DataSet, PrimeclueErr> {
     let data = split_to_vec(&r.content, &r.separator, r.ignore_first_row);
-    let class_producer = class_producer(&r, &data)?;
+    let class_producer = class_producer(r, &data)?;
     let mut numbers = vec![];
     let mut data_set = DataSet::new(class_producer.all_classes());
     for (row_num, row) in data.iter().enumerate() {
@@ -258,7 +258,7 @@ pub fn class_producer(
         Ok(ClassProducer::Binary(parse(&r.expression, data)?))
     } else {
         let column = r.class_column - 1;
-        let classes = build_class_map(&data, column)?;
+        let classes = build_class_map(data, column)?;
         Ok(ClassProducer::Column(column, classes))
     }
 }

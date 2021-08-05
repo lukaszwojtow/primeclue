@@ -272,7 +272,7 @@ impl<T: AsObjective> ClassGroup<T> {
     }
 
     fn remove_weak_trees(&mut self, length: usize) {
-        self.scored.sort_unstable_by(|t1, t2| t1.partial_cmp(&t2).unwrap_or(Equal));
+        self.scored.sort_unstable_by(|t1, t2| t1.partial_cmp(t2).unwrap_or(Equal));
         self.scored.reverse();
         self.scored.truncate(length);
     }
@@ -309,5 +309,5 @@ fn generate_group<T: AsObjective>(
             return group;
         }
     }
-    ClassGroup::create_random(training.size, &input_shape, id, max_depth, forbidden_cols)
+    ClassGroup::create_random(training.size, input_shape, id, max_depth, forbidden_cols)
 }

@@ -145,7 +145,7 @@
             label="Unseen data">
           <el-table-column
             prop="test_auc"
-            label="AUC"
+            label="Auc"
             />
           <el-table-column
               prop="test_accuracy"
@@ -178,8 +178,8 @@ export default {
   data() {
     return {
       showDoneWindow: true,
-      trainingObjective: "AUC",
-      possibleTrainingObjectives: ["Accuracy", "Cost", "AUC"],
+      trainingObjective: "Auc",
+      possibleTrainingObjectives: ["Accuracy", "Cost", "Auc"],
       classifierName: "",
       overrideRewards: false,
       forbiddenColumns: "",

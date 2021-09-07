@@ -87,12 +87,11 @@ impl<'o, T: AsObjective> ClassTraining<'o, T> {
 
     pub fn next_generation(&mut self, training_data: &DataView, verification_data: &DataView) {
         self.fill_up(training_data.input_shape());
-        let objective = &self.objective; //.clone();
+        let objective = &self.objective;
         let class = self.class;
         let length = self.size;
         let forbidden_cols = &self.forbidden_cols;
         self.groups.par_iter_mut().for_each(|(_, group)| {
-            // TODO
             group.breed(forbidden_cols, length);
             group.execute_and_score(objective, training_data, class);
             group.remove_weak_trees(length);

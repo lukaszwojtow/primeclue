@@ -35,6 +35,7 @@ pub struct ClassifierScore {
     pub accuracy: f32,
     pub cost: f32,
     pub label_count_map: HashMap<String, usize>,
+    pub label_accuracy_map: HashMap<String, f32>,
 }
 
 /// A structure containing a classifier trained via [`TrainingGroup`]
@@ -124,6 +125,7 @@ impl Classifier {
         let auc = self.execute_for_auc(data)?;
         let predictions = self.classify(data);
         let mut label_count_map = HashMap::new();
+        let mut label_accuracy_map = HashMap::new();
         let mut correct = 0;
         let mut total = 0;
         let mut reward = 0.0;
@@ -133,8 +135,15 @@ impl Classifier {
                 continue;
             }
             let label = (*prediction).to_owned();
-            let class_count = label_count_map.remove(&label).unwrap_or(0);
-            label_count_map.insert(label, class_count + 1);
+
+            let class_count = label_count_map.remove(&label).unwrap_or(0) + 1;
+            label_count_map.insert(label.clone(), class_count);
+
+            if self.classes.get(&outcome.class()).unwrap() == &label {
+                let accurate = label_accuracy_map.remove(&label).unwrap_or(0.0);
+                label_accuracy_map.insert(label, accurate + 1.0);
+            }
+
             total += 1;
             let expected = data.class_map().get(&outcome.class())?;
             if prediction == expected {
@@ -144,9 +153,13 @@ impl Classifier {
                 penalty += outcome.penalty();
             }
         }
+        for (label, correct) in label_accuracy_map.iter_mut() {
+            let count = label_count_map.get(label).unwrap();
+            *correct /= *count as f32;
+        }
         let accuracy = correct as f32 / total as f32;
         let cost = reward + penalty;
-        Some(ClassifierScore { auc, accuracy, cost, label_count_map })
+        Some(ClassifierScore { auc, accuracy, cost, label_count_map, label_accuracy_map })
     }
 
     fn calc_tree_auc(tree: &ScoredTree, data: &DataView) -> Option<f32> {

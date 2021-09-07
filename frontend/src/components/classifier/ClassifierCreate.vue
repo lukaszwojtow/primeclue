@@ -159,6 +159,10 @@
               prop="test_labels"
               label="Guesses"
               />
+          <el-table-column
+              prop="accuracy_labels"
+              label="Label's accuracy"
+          />
         </el-table-column>
       </el-table-column>
     </el-table>
@@ -232,7 +236,13 @@ export default {
                 .replaceAll('}','')
                 .replaceAll(',', ' ')
                 .replaceAll('"','')
-                .replaceAll(':', ': ')
+                .replaceAll(':', ': '),
+            accuracy_labels: JSON.stringify(tick.classifier_score.label_accuracy_map)
+                .replaceAll('{','')
+                .replaceAll('}','')
+                .replaceAll(',', ' ')
+                .replaceAll('"','')
+                .replaceAll(':', ': '),
           };
           this.progress_data.push(p);
         }

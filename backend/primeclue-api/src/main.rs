@@ -37,6 +37,7 @@
 extern crate human_panic;
 
 use crate::rest::SERVER_ADDR;
+use crate::rest::SERVER_PORT;
 
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
@@ -46,11 +47,15 @@ mod data;
 mod executor;
 mod rest;
 
-fn main() -> Result<(), std::io::Error> {
+#[actix_web::main]
+async fn main() -> Result<(), std::io::Error> {
     setup_panic!();
-    let result = rest::start_web();
+    let result = rest::start_web().await;
     if let Err(err) = result {
-        eprintln!("Unable to start web server on address {}: {}", SERVER_ADDR, err);
+        eprintln!(
+            "Unable to start web server on address {}:{}: {}",
+            SERVER_ADDR, SERVER_PORT, err
+        );
         std::io::stdin().read_line(&mut String::new())?;
     }
     Ok(())

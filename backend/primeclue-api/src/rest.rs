@@ -22,13 +22,14 @@ use crate::data::{classes, import};
 use crate::executor::{Executor, Job, JobId, Status, Termination};
 use crate::{classifier, data};
 use actix_cors::Cors;
-use actix_web::{http, web, App, FromRequest, HttpResponse, HttpServer};
+use actix_web::{http, web, App, HttpResponse, HttpServer};
 use primeclue::data::importer::ClassRequest;
 use serde::Serialize;
 use std::sync::mpsc::channel;
 use std::sync::Mutex;
 
-pub(crate) const SERVER_ADDR: &str = "0.0.0.0:8180";
+pub(crate) const SERVER_ADDR: &str = "0.0.0.0";
+pub(crate) const SERVER_PORT: u16 = 8180;
 
 #[derive(Serialize)]
 struct StatusResponse {
@@ -138,11 +139,12 @@ fn classifier_create_handler(
     id_ok_response(id)
 }
 
-pub(crate) fn start_web() -> std::io::Result<()> {
-    HttpServer::new(move || {
+pub(crate) async fn start_web() -> std::io::Result<()> {
+    HttpServer::new(|| {
         App::new()
-            .wrap(Cors::new())
-            .register_data(web::Data::new(Mutex::new(Executor::create())))
+            .wrap(Cors::permissive())
+            .app_data(web::Data::new(Mutex::new(Executor::create())))
+            .app_data(web::PayloadConfig::new(1024 * 1024 * 16))
             .route("/data/classes", web::to(data_classes_handler).method(http::Method::POST))
             .route("/data/import", web::to(data_import_handler).method(http::Method::POST))
             .route("/data/list", web::to(data_list_handler).method(http::Method::GET))
@@ -171,8 +173,8 @@ pub(crate) fn start_web() -> std::io::Result<()> {
                 "/job/{id}/terminate",
                 web::to(job_terminate_handler).method(http::Method::PUT),
             )
-            .data(web::Json::<ClassRequest>::configure(|cfg| cfg.limit(256 * 1024 * 1024)))
     })
-    .bind(SERVER_ADDR)?
+    .bind((SERVER_ADDR, SERVER_PORT))?
     .run()
+    .await
 }

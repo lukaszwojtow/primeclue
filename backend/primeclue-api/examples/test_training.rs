@@ -17,13 +17,14 @@
    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-use primeclue::data::data_set::DataSet;
+use primeclue::data::data_set::{DataSet, DataView};
 use primeclue::data::outcome::Class;
 use primeclue::data::{Input, Outcome, Point};
 use primeclue::exec::score::Objective;
 use primeclue::exec::training_group::TrainingGroup;
 use rand::{thread_rng, Rng};
 use std::collections::HashMap;
+use std::time::{Duration, Instant};
 
 // A difficult-ish problem for ML. Not only test data is never seen during training, but it also
 // have values in range > 200 && <= 300. Values in this range were not observed during training.
@@ -33,8 +34,14 @@ use std::collections::HashMap;
 fn main() {
     let mut sum = 0.0;
     let count = 100;
+    let (training_data, verification_data, test_data) = generate_data();
     for attempt in 1..count + 1 {
-        sum += training_success(attempt);
+        sum += attempt_training(
+            attempt,
+            training_data.clone(),
+            verification_data.clone(),
+            test_data.clone(),
+        );
         println!(
             "Average score on unseen data after {} attempts: {}",
             attempt,
@@ -43,7 +50,41 @@ fn main() {
     }
 }
 
-fn training_success(attempt: usize) -> f32 {
+fn attempt_training(
+    attempt: usize,
+    training_data: DataView,
+    verification_data: DataView,
+    test_data: DataView,
+) -> f32 {
+    let mut training =
+        TrainingGroup::new(training_data, verification_data, &Objective::Accuracy, 100, &[])
+            .unwrap();
+    let max_training_duration = Duration::from_secs(5 * 60);
+    let end_time = Instant::now().checked_add(max_training_duration).unwrap();
+    loop {
+        let now = Instant::now();
+        if now > end_time {
+            println!("Training failed! Unable to learn after {:?}", max_training_duration);
+            std::process::exit(1);
+        }
+        training.next_generation();
+        if let Ok(classifier) = training.classifier() {
+            if let Some(score) = classifier.score(&test_data) {
+                if let Some(stats) = training.stats() {
+                    println!(
+                        "Testing training #{}, epoch: {}, training: {:4.2}, unseen: {:4.2}, epoch time: {:?}",
+                        attempt, stats.generation, stats.training_score, score.accuracy, Instant::now().duration_since(now)
+                    );
+                    if stats.training_score >= 0.9 {
+                        return score.accuracy;
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn generate_data() -> (DataView, DataView, DataView) {
     let mut classes = HashMap::new();
     classes.insert(Class::new(0), "A".to_owned());
     classes.insert(Class::new(1), "B".to_owned());
@@ -74,41 +115,5 @@ fn training_success(attempt: usize) -> f32 {
             data_set.add_data_point(point).unwrap();
         }
     }
-
-    let (training_data, verification_data, test_data) = data_set.into_3_views_split();
-
-    let mut training = TrainingGroup::new(
-        training_data,
-        verification_data,
-        &Objective::Accuracy,
-        100,
-        &Vec::new(),
-    )
-    .unwrap();
-    loop {
-        training.next_generation();
-        if let Some(stats) = training.stats() {
-            if stats.generation > 10_000 {
-                println!("Training failed! Unable to learn after 10k generations");
-                std::process::exit(1);
-            }
-            if let Ok(classifier) = training.classifier() {
-                if let Some(score) = classifier.score(&test_data) {
-                    if let Some(stats) = training.stats() {
-                        println!(
-                            "Testing training #{}, epoch: {}, training: {:4.2}, unseen: {:4.2}",
-                            attempt, stats.generation, stats.training_score, score.accuracy
-                        );
-                        if stats.training_score >= 0.9 {
-                            println!(
-                                "Testing training #{}, epoch: {}, training: {:4.2}, unseen: {:4.2}",
-                                attempt, stats.generation, stats.training_score, score.accuracy
-                            );
-                            return score.accuracy;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    data_set.into_3_views_split()
 }

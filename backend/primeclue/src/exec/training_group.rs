@@ -108,7 +108,11 @@ impl<'o, T: AsObjective> TrainingGroup<'o, T> {
             node_count += best_tree.node_count();
             training_score += class.training_score()?;
         }
-        Some(Stats { generation: self.generation, node_count, training_score: training_score / self.classes.len() as f32 })
+        Some(Stats {
+            generation: self.generation,
+            node_count,
+            training_score: training_score / self.classes.len() as f32,
+        })
     }
 
     pub fn get_tree(&self, class: &Class) -> Option<&ScoredTree> {

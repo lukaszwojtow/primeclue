@@ -140,8 +140,8 @@ mod test {
         let mut p = Outcome::new(Class::new(0), 1.0, -1.0);
         let new = 3.0;
         p.set_reward_penalty(new, -new);
-        assert_eq!(new, p.reward());
-        assert_eq!(-new, p.penalty())
+        assert!((new - p.reward()).abs() < f32::EPSILON);
+        assert!((-new - p.penalty()).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -154,14 +154,34 @@ mod test {
         let outcome_loss = Outcome::new(class_loss, reward, penalty);
         let guess_true = true;
         let guess_false = false;
-        assert_eq!(outcome_profit.calculate_cost(guess_true, class_profit), reward);
-        assert_eq!(outcome_profit.calculate_cost(guess_false, class_profit), 0.0);
-        assert_eq!(outcome_profit.calculate_cost(guess_true, class_loss), penalty);
-        assert_eq!(outcome_profit.calculate_cost(guess_false, class_loss), 0.0);
+        assert!(
+            (outcome_profit.calculate_cost(guess_true, class_profit) - reward).abs()
+                < f32::EPSILON
+        );
+        assert!(
+            (outcome_profit.calculate_cost(guess_false, class_profit) - 0.0).abs()
+                < f32::EPSILON
+        );
+        assert!(
+            (outcome_profit.calculate_cost(guess_true, class_loss) - penalty).abs()
+                < f32::EPSILON
+        );
+        assert!(
+            (outcome_profit.calculate_cost(guess_false, class_loss) - 0.0).abs() < f32::EPSILON
+        );
 
-        assert_eq!(outcome_loss.calculate_cost(guess_true, class_loss), reward);
-        assert_eq!(outcome_loss.calculate_cost(guess_false, class_loss), 0.0);
-        assert_eq!(outcome_loss.calculate_cost(guess_true, class_profit), penalty);
-        assert_eq!(outcome_loss.calculate_cost(guess_false, class_profit), 0.0);
+        assert!(
+            (outcome_loss.calculate_cost(guess_true, class_loss) - reward).abs() < f32::EPSILON
+        );
+        assert!(
+            (outcome_loss.calculate_cost(guess_false, class_loss) - 0.0).abs() < f32::EPSILON
+        );
+        assert!(
+            (outcome_loss.calculate_cost(guess_true, class_profit) - penalty).abs()
+                < f32::EPSILON
+        );
+        assert!(
+            (outcome_loss.calculate_cost(guess_false, class_profit) - 0.0).abs() < f32::EPSILON
+        );
     }
 }

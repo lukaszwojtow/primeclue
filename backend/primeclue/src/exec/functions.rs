@@ -462,29 +462,29 @@ mod test {
     fn test_equal() {
         let v1 = 1.0;
         let v2 = v1;
-        assert_eq!(1.0, equal(v1, v2));
+        assert!((1.0 - equal(v1, v2)).abs() < f32::EPSILON);
 
         let v1 = -1.0;
         let v2 = 1.0;
-        assert_eq!(0.0, equal(v1, v2));
+        assert!((0.0 - equal(v1, v2)).abs() < f32::EPSILON);
 
         let v1 = 1010.0;
         let v2 = 1000.0;
-        assert_eq!(1.0, equal(v1, v2));
+        assert!((1.0 - equal(v1, v2)).abs() < f32::EPSILON);
 
         let v1 = 100.0;
         let v2 = 1000.0;
-        assert_eq!(0.0, equal(v1, v2));
+        assert!((0.0 - equal(v1, v2)).abs() < f32::EPSILON);
 
         let v1 = 1020.0;
         let v2 = 1000.0;
-        assert_eq!(0.0, equal(v1, v2));
+        assert!((0.0 - equal(v1, v2)).abs() < f32::EPSILON);
     }
 
     #[test]
     fn test_relu() {
-        assert_eq!(relu(1.0), 1.0);
-        assert_eq!(relu(-15.0), 0.0);
-        assert_eq!(relu(15.0), 15.0);
+        assert!((relu(1.0) - 1.0).abs() < f32::EPSILON);
+        assert!((relu(-15.0) - 0.0).abs() < f32::EPSILON);
+        assert!((relu(15.0) - 15.0).abs() < f32::EPSILON);
     }
 }

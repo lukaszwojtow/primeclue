@@ -32,14 +32,12 @@ use std::time::Instant;
 fn main() -> Result<(), PrimeclueErr> {
     // Get path and time from command line args
     let path = env::args()
-        .skip(1)
-        .next()
-        .ok_or("Need path to data as first arg".to_string())
+        .nth(1)
+        .ok_or_else(|| "Need path to data as first arg".to_string())
         .map_err(PrimeclueErr::from)?;
     let seconds = env::args()
-        .skip(2)
-        .next()
-        .ok_or("Need time in seconds as last arg".to_string())
+        .nth(2)
+        .ok_or_else(|| "Need time in seconds as last arg".to_string())
         .map_err(PrimeclueErr::from)?
         .parse::<usize>()
         .map_err(|_| "Time must be an integer".to_string())?;

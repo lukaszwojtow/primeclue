@@ -34,22 +34,22 @@ mod test {
     #[test]
     fn median_test() {
         let mut v = vec![1.0, 2.0, 3.0, 4.0];
-        assert_eq!(median(&mut v), 2.5);
+        assert!((median(&mut v) - 2.5).abs() < f32::EPSILON);
         let mut v = vec![4.0, 3.0, 2.0, 1.0];
-        assert_eq!(median(&mut v), 2.5);
+        assert!((median(&mut v) - 2.5).abs() < f32::EPSILON);
         let mut v = vec![4.0, 3.0, 1.0, 2.0];
-        assert_eq!(median(&mut v), 2.5);
+        assert!((median(&mut v) - 2.5).abs() < f32::EPSILON);
         let mut v = vec![1.0, 2.0, 3.0];
-        assert_eq!(median(&mut v), 2.0);
+        assert!((median(&mut v) - 2.0).abs() < f32::EPSILON);
         let mut v = vec![3.0, 2.0, 1.0];
-        assert_eq!(median(&mut v), 2.0);
+        assert!((median(&mut v) - 2.0).abs() < f32::EPSILON);
         let mut v = vec![3.0, 1.0, 2.0];
-        assert_eq!(median(&mut v), 2.0)
+        assert!((median(&mut v) - 2.0).abs() < f32::EPSILON);
     }
 
     #[test]
     fn test_valid() {
-        assert!(!valid(&vec![]));
+        assert!(!valid(&[]));
         let values = vec![-1.0, 2.0, 3.0];
         assert!(valid(&values));
 

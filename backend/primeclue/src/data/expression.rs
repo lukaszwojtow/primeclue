@@ -282,13 +282,13 @@ mod test {
         let data = vec![vec!["10.0", "5.0"], vec!["15.0", "25.0"], vec!["14.0", "10.0"]];
         let producer = parse(expression, &data).unwrap();
         let result = producer.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(result, true);
+        assert!(result);
 
         let expression = "cell 0 1 = number 30";
         let data = vec![vec!["10.0", "5.0"], vec!["30.0", "25.0"], vec!["20.0", "15.0"]];
         let producer = parse(expression, &data).unwrap();
         let result = producer.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
@@ -307,7 +307,7 @@ mod test {
         let data = vec![vec!["3.0"]];
         let op = parse(e, &data).unwrap();
         let c = op.classify(&data, 0);
-        assert_eq!(c.is_err(), true);
+        assert!(c.is_err());
         assert_expression_error("column 0 > number 3");
         assert_expression_error("column -1 > number 3");
     }
@@ -318,7 +318,7 @@ mod test {
         let data = vec![vec!["4.0", "10.0"]];
         let op = parse(e, &data).unwrap();
         let b = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(b, true);
+        assert!(b);
     }
 
     #[test]
@@ -327,12 +327,12 @@ mod test {
         let data = vec![vec!["1.0"]];
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap();
-        assert_eq!(r.is_none(), true);
+        assert!(r.is_none());
 
         let e = "cell -1 1 > number 3";
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap();
-        assert_eq!(r.is_none(), true);
+        assert!(r.is_none());
     }
 
     #[test]
@@ -351,13 +351,13 @@ mod test {
         let data = vec![vec!["5.0", "-1.5"], vec!["4.0", "0.0"], vec!["6.0", "1.0"]];
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
     }
 
     #[test]
@@ -366,7 +366,7 @@ mod test {
         assert_expression_error(e);
         let data = vec![vec!["5.0", "10.0"], vec!["4.0", "10.0"], vec!["6.0", "10.0"]];
         let e = "column 1 < average 3";
-        assert_eq!(parse(e, &data).is_err(), true);
+        assert!(parse(e, &data).is_err());
     }
 
     #[test]
@@ -386,19 +386,19 @@ mod test {
 
         let data = vec![vec!["5.0", "10.0"]];
         let e = "column 1 < median 1";
-        assert_eq!(parse(e, &data).is_err(), true);
+        assert!(parse(e, &data).is_err());
 
         let data = vec![vec!["1.0", "10.0"], vec!["4.0", "10.0"], vec!["6.0", "10.0"]];
         let e = "column 1 < median 1";
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
 
         let r = op.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let data = vec![
             vec!["1.0", "4.0"],
@@ -409,16 +409,16 @@ mod test {
         let e = "column 2 < median 1";
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
 
         let r = op.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
 
         let r = op.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 3).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
     }
 
     #[test]
@@ -427,13 +427,13 @@ mod test {
         let data = vec![vec!["5.0", "10.0"], vec!["4.0", "10.0"], vec!["6.0", "10.0"]];
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
 
         let r = op.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
     }
 
     #[test]
@@ -442,13 +442,13 @@ mod test {
         let data = vec![vec!["5.0", "10.0"], vec!["4.0", "10.0"], vec!["6.0", "10.0"]];
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
 
         let r = op.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
     }
 
     #[test]
@@ -457,13 +457,13 @@ mod test {
         let data = vec![vec!["5.0", "10.0"], vec!["4.0", "10.0"], vec!["6.0", "10.0"]];
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
 
         let r = op.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
     }
 
     #[test]
@@ -472,13 +472,13 @@ mod test {
         let data = vec![vec!["5.0", "10.0"], vec!["4.0", "10.0"], vec!["6.0", "10.0"]];
         let op = parse(e, &data).unwrap();
         let r = op.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
 
         let r = op.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(r, true);
+        assert!(r);
 
         let r = op.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(r, false);
+        assert!(!r);
     }
 
     #[test]
@@ -487,11 +487,11 @@ mod test {
         let data = vec![vec!["10.0", "1.0"]];
         let producer = parse(expression, &data).unwrap();
         let result = producer.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(result, true);
+        assert!(result);
 
         let data = vec![vec!["1.0", "10.0"]];
         let result = producer.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(result, false);
+        assert!(!result);
     }
 
     #[test]
@@ -501,20 +501,20 @@ mod test {
             vec![vec!["1.0", "1.0"], vec!["2.0", "2.0"], vec!["3.0", "3.0"], vec!["4.0", "4.0"]];
         let producer = parse(expression, &data).unwrap();
         let result = producer.classify(&data, 0).unwrap().unwrap();
-        assert_eq!(result, false);
+        assert!(!result);
         let result = producer.classify(&data, 1).unwrap().unwrap();
-        assert_eq!(result, false);
+        assert!(!result);
         let result = producer.classify(&data, 2).unwrap().unwrap();
-        assert_eq!(result, true);
+        assert!(result);
         let result = producer.classify(&data, 3).unwrap().unwrap();
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn check_nan_in_data() {
         let nan = "NaN";
         let n: f64 = nan.parse().unwrap();
-        assert!(n.is_nan(), "{}", true);
+        assert!(n.is_nan());
         let expression = "column 1 < column 2";
         let data = vec![vec![nan, "2.0"]];
         let producer = parse(expression, &data).unwrap();
@@ -571,6 +571,6 @@ mod test {
 
     fn assert_expression_error(e: &str) {
         let data = vec![vec!["0.0"]];
-        assert_eq!(parse(e, &data).is_err(), true);
+        assert!(parse(e, &data).is_err());
     }
 }

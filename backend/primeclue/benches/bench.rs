@@ -74,7 +74,7 @@ fn threshold_cost_bench(c: &mut Criterion) {
     let mut rng = GET_RNG();
     let mut outcomes = vec![];
     for p in data.iter() {
-        outcomes.push((rng.gen_range(0.0..1.0), p.data().1.clone()));
+        outcomes.push((rng.gen_range(0.0..1.0), *p.data().1));
     }
     c.bench_function("threshold_cost", |b| {
         b.iter(|| {
@@ -107,7 +107,7 @@ fn vec_add_fast(c: &mut Criterion) {
                 // col1.iter_mut().enumerate().for_each(|(i, x)| *x = *x + col2[i]);// slower, probably due to [] access check
                 // col1.iter_mut().zip(col2).for_each(|(c1, c2)| *c1 = *c1 + *c2); // the same as below, but less readable
                 for (value1, value2) in col1.iter_mut().zip(col2) {
-                    *value1 = *value1 + *value2;
+                    *value1 *= *value2;
                 }
             }
             black_box(col2);

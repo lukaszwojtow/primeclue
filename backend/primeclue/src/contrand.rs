@@ -50,7 +50,7 @@ mod test {
         let mut rng2 = predictable_rng();
         for _ in 0..1024 {
             assert_eq!(rng1.gen::<usize>(), rng2.gen::<usize>());
-            assert_eq!(rng1.gen::<f64>(), rng2.gen::<f64>());
+            assert!((rng1.gen::<f64>() - rng2.gen::<f64>()).abs() < f64::EPSILON);
             assert_eq!(rng1.gen_range(0..1024), rng2.gen_range(0..1024));
             assert_eq!(rng1.gen_bool(0.3), rng2.gen_bool(0.3));
         }

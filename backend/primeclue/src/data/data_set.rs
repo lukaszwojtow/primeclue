@@ -431,7 +431,7 @@ pub(crate) mod test {
     #[test]
     fn test_empty() {
         let data = DataSet::new(HashMap::new());
-        assert_eq!(data.is_empty(), true);
+        assert!(data.is_empty());
     }
 
     #[test]
@@ -518,7 +518,7 @@ pub(crate) mod test {
                 return; // shuffled
             }
         }
-        assert!(false, "Data not shuffled");
+        panic!("Data not shuffled");
     }
 
     #[test]
@@ -538,10 +538,10 @@ pub(crate) mod test {
         let rewards = Rewards { reward: 2.0, penalty: -3.0 };
         data.apply_rewards(&rewards);
         for point in &data.points {
-            assert_eq!(point.outcome.reward(), 2.0);
-            assert_eq!(point.outcome.penalty(), -3.0);
+            assert!((point.outcome.reward() - 2.0).abs() < f32::EPSILON);
+            assert!((point.outcome.penalty() - -3.0).abs() < f32::EPSILON);
         }
-        assert_eq!(data.cost_range(), (-27.0, 18.0))
+        assert_eq!(data.cost_range(), (-27.0, 18.0));
     }
 
     #[test]

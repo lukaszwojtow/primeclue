@@ -46,7 +46,7 @@ fn check_once() -> Option<f32> {
         TrainingGroup::new(training_data, verification_data, &Objective::Accuracy, 10, &[])
             .ok()?;
     // Get some loop break condition. Here it's time limit, regardless of result or generation count
-    let end_time = Instant::now().add(std::time::Duration::from_secs(60 as u64));
+    let end_time = Instant::now().add(std::time::Duration::from_secs(60));
 
     // Actual training happens here
     while Instant::now().lt(&end_time) {

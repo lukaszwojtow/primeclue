@@ -145,9 +145,8 @@ mod test {
         let t2 = create_long_tree();
         let s2 = Score::new(Auc, Class::new(0), 0.8, Threshold::new(0.0));
         let st2 = ScoredTree::new(t2, s2);
-        let trees = vec![st1, st2];
+        let mut trees = vec![st1, st2];
         assert_eq!(ScoredTree::best_tree(&trees).unwrap(), &trees[1]);
-        let mut trees = trees.clone();
         trees.reverse();
         assert_eq!(ScoredTree::best_tree(&trees).unwrap(), &trees[0]);
 
@@ -157,9 +156,8 @@ mod test {
         let t2 = create_long_tree();
         let s2 = Score::new(Auc, Class::new(0), 0.6, Threshold::new(0.0));
         let st2 = ScoredTree::new(t2, s2);
-        let trees = vec![st1, st2];
+        let mut trees = vec![st1, st2];
         assert_eq!(ScoredTree::best_tree(&trees).unwrap(), &trees[0]);
-        let mut trees = trees.clone();
         trees.reverse();
         assert_eq!(ScoredTree::best_tree(&trees).unwrap(), &trees[1]);
     }
@@ -196,7 +194,7 @@ mod test {
         let long = create_long_tree();
         let class = Class::new(0);
         let s1 = Score::new(Auc, class, 1.0, Threshold::new(0.0));
-        let s2 = s1.clone();
+        let s2 = s1;
         let short_tree = ScoredTree::new(short, s1);
         let long_tree = ScoredTree::new(long, s2);
 
@@ -209,7 +207,7 @@ mod test {
         let t2 = t1.clone();
         let class = Class::new(0);
         let s1 = Score::new(Auc, class, 1.0, Threshold::new(0.0));
-        let s2 = s1.clone();
+        let s2 = s1;
         let st1 = ScoredTree::new(t1, s1);
         let st2 = ScoredTree::new(t2, s2);
         assert_eq!(st1.partial_cmp(&st2), Some(Ordering::Equal))

@@ -368,11 +368,9 @@ mod test {
     fn cmp_incompatible_score() {
         let class = Class::new(0);
         let s1 = Score { objective: Auc, class, value: 1.0, threshold: Threshold::new(0.0) };
-        let s2 = Score { objective: Cost, class, value: 2.0, threshold: Threshold::new(0.0) };
+        let s2 = Score { objective: Cost, class, value: 1.0, threshold: Threshold::new(0.0) };
         assert_eq!(s1.partial_cmp(&s2), None);
-        assert_eq!(s1 > s2, false);
-        assert_eq!(s1 < s2, false);
-        assert_eq!(s1 == s2, false);
+        assert_ne!(s1, s2);
     }
 
     #[test]
@@ -422,7 +420,7 @@ mod test {
             (0.90, Outcome::new(n, 1.0, -1.0)),
         ];
         let auc = calculate_auc(&predictions, n);
-        assert_eq!(auc, 0.68)
+        assert!((auc - 0.68).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -436,7 +434,7 @@ mod test {
             (-1.0, Outcome::new(Class::from(true), 1.0, -1.0)),
         ];
         let t = auc_threshold(&outcomes, Class::from(true)); // if false_count == 1 then return 2nd value
-        assert_eq!(t.value(), -3.0);
+        assert!((t.value() - -3.0).abs() < f32::EPSILON);
 
         let outcomes = vec![
             (-10.0, Outcome::new(Class::from(true), 1.0, -1.0)),
@@ -444,7 +442,7 @@ mod test {
             (-1.0, Outcome::new(Class::from(true), 1.0, -1.0)),
         ];
         let t = auc_threshold(&outcomes, Class::from(false)); // if none false then return 2 * abs(last value)
-        assert_eq!(t.value(), 2.0);
+        assert!((t.value() - 2.0).abs() < f32::EPSILON);
 
         let outcomes = vec![
             (1.0, Outcome::new(Class::from(true), 1.0, -1.0)),
@@ -452,7 +450,7 @@ mod test {
             (10.0, Outcome::new(Class::from(true), 1.0, -1.0)),
         ];
         let t = auc_threshold(&outcomes, Class::from(false)); // if none false then return double last value
-        assert_eq!(t.value(), 20.0);
+        assert!((t.value() - 20.0).abs() < f32::EPSILON);
 
         let outcomes = vec![
             (-10.0, Outcome::new(Class::from(true), 1.0, -1.0)),
@@ -460,7 +458,7 @@ mod test {
             (-1.0, Outcome::new(Class::from(true), 1.0, -1.0)),
         ];
         let t = auc_threshold(&outcomes, Class::from(true)); // if none false then return first value
-        assert_eq!(t.value(), -10.0);
+        assert!((t.value() - -10.0).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -470,7 +468,7 @@ mod test {
             let outcomes = get_biased_outcomes();
             let slow_threshold = naive_cost_threshold(&outcomes, class);
             let fast_threshold = cost_threshold(&outcomes, class);
-            assert_eq!(slow_threshold.value, fast_threshold.value);
+            assert!((slow_threshold.value - fast_threshold.value).abs() < f32::EPSILON);
         }
     }
 
@@ -481,7 +479,7 @@ mod test {
             let outcomes = get_biased_outcomes();
             let slow_threshold = naive_accuracy_threshold(&outcomes, class);
             let fast_threshold = accuracy_threshold(&outcomes, class);
-            assert_eq!(slow_threshold.value, fast_threshold.value);
+            assert!((slow_threshold.value - fast_threshold.value).abs() < f32::EPSILON);
         }
     }
 

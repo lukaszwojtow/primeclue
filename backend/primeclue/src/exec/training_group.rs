@@ -203,7 +203,7 @@ mod test {
 
         for _ in 0..1_000 {
             training_group.next_generation();
-            if let Some(_) = training_group.get_tree(&Class::new(1)) {
+            if training_group.get_tree(&Class::new(1)).is_some() {
                 return;
             }
         }

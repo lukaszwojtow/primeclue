@@ -18,7 +18,6 @@
 */
 
 use crate::data::data_set::DataSet;
-use crate::data::expression::{parse, OutcomeProducer};
 use crate::data::outcome::Class;
 use crate::data::{Input, Outcome, Point};
 use crate::error::PrimeclueErr;
@@ -46,7 +45,6 @@ fn create_input_data(
 pub struct ClassRequest {
     // TODO remove pub
     pub content: String,
-    pub expression: String,
     pub class_column: usize,
     pub separator: String,
     pub ignore_first_row: bool,
@@ -100,7 +98,6 @@ impl ClassRequest {
 
         ClassRequest {
             content,
-            expression: "".to_string(),
             class_column: len,
             separator: ",".to_string(),
             ignore_first_row,
@@ -213,40 +210,27 @@ pub fn split_to_vec<'a>(
 }
 
 #[derive(Debug)]
-pub enum ClassProducer {
-    Binary(OutcomeProducer),
-    Column(usize, HashMap<String, Class>),
+pub struct ClassProducer {
+    column: usize,
+    classes: HashMap<String, Class>,
 }
 
 impl ClassProducer {
+    pub fn create(column: usize, classes: HashMap<String, Class>) -> Self {
+        ClassProducer { column, classes }
+    }
+
     pub fn class(&self, data: &[Vec<&str>], row: usize) -> Result<Option<Class>, PrimeclueErr> {
-        match self {
-            ClassProducer::Binary(producer) => {
-                Ok(producer.classify(data, row)?.map(Class::from))
-            }
-            ClassProducer::Column(column, classes) => {
-                let v = data[row][*column];
-                Ok(Some(*classes.get(v).unwrap()))
-            }
-        }
+        let v = data[row][self.column];
+        Ok(Some(*self.classes.get(v).unwrap()))
     }
 
     fn all_classes(&self) -> HashMap<Class, String> {
-        match self {
-            ClassProducer::Binary(_) => {
-                let mut classes = HashMap::new();
-                classes.insert(Class::from(false), "false".to_string());
-                classes.insert(Class::from(true), "true".to_string());
-                classes
-            }
-            ClassProducer::Column(_, current) => {
-                let mut classes = HashMap::new();
-                for (k, v) in current {
-                    classes.insert(*v, k.to_owned());
-                }
-                classes
-            }
+        let mut classes = HashMap::new();
+        for (k, v) in &self.classes {
+            classes.insert(*v, k.to_owned());
         }
+        classes
     }
 }
 
@@ -254,13 +238,9 @@ pub fn class_producer(
     r: &ClassRequest,
     data: &[Vec<&str>],
 ) -> Result<ClassProducer, PrimeclueErr> {
-    if !r.expression.is_empty() {
-        Ok(ClassProducer::Binary(parse(&r.expression, data)?))
-    } else {
-        let column = r.class_column - 1;
-        let classes = build_class_map(data, column)?;
-        Ok(ClassProducer::Column(column, classes))
-    }
+    let column = r.class_column - 1;
+    let classes = build_class_map(data, column)?;
+    Ok(ClassProducer::create(column, classes))
 }
 
 pub fn build_numbers_row(

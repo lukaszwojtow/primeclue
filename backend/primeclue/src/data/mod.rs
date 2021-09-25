@@ -25,7 +25,6 @@ pub use self::outcome::Outcome;
 
 pub mod common;
 pub mod data_set;
-pub mod expression;
 pub mod importer;
 pub mod input;
 pub mod outcome;

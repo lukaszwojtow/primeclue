@@ -22,23 +22,12 @@
             <div>
                 <div style="display: inline-flex; padding-top: 15px">
                     <div style="width: 170px">
-                        <el-select v-model="classProducer" placeholder="Select" size="small">
-                            <el-option
-                                    v-for="item in this.classProducerOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                            </el-option>
-                        </el-select>
+                      <div style="padding-top: 15px; width: 170px">
+                        Class column:
+                      </div>
                     </div>
-                    <div v-if="classProducer=='bool'">
-                        <el-input style="width: 187px; margin-left: 10px" size="small" v-model="expression"
-                                  type="text"/>
-                    </div>
-                    <div v-else-if="classProducer=='column'">
-                        <el-input-number size="small" style="width: 187px; margin-left: 10px"
-                                         v-model="classColumn" :min="1" :max="columns" @change="unmarkClassColumn"/>
-                    </div>
+                    <el-input-number size="small" style="width: 187px; margin-left: 10px"
+                                   v-model="classColumn" :min="1" :max="columns" @change="unmarkClassColumn"/>
                     <el-button size="small" :disabled="!fileChosen" style="margin-left: 10px; width: 145px" type="large"
                                @click="getClasses">Get classes
                     </el-button>
@@ -233,15 +222,9 @@
         },
         data() {
             return {
-                classProducer: "column",
-                classProducerOptions: [
-                  {value: "column", label: "Class column"},
-                  {value: "bool", label: "Boolean expression"},
-                ],
                 fileLoading: false,
                 fileLoadButtonText: "Load file ...",
                 fileChosen: false,
-                expression: "column 1 > number 0",
                 classColumn: 0,
                 firstRowIsHeader: false,
                 content: "",

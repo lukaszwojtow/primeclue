@@ -36,7 +36,7 @@ use std::fmt::{Debug, Error, Formatter};
 use std::marker::PhantomData;
 use std::mem::replace;
 
-#[derive(Eq, PartialEq, Hash, Copy, Clone)]
+#[derive(Eq, PartialEq, Hash, Copy, Clone, Debug)]
 struct GroupId(u64);
 
 pub struct ClassTraining<'o, T: AsObjective> {
@@ -181,8 +181,7 @@ impl<'o, T: AsObjective> ClassTraining<'o, T> {
                 }
             }
         }
-        scores.sort_unstable_by(|(_, s1), (_, s2)| s1.partial_cmp(s2).unwrap());
-        scores.reverse();
+        scores.sort_unstable_by(|(_, s1), (_, s2)| s1.partial_cmp(s2).unwrap().reverse());
         scores
     }
 }
@@ -271,9 +270,10 @@ impl<T: AsObjective> ClassGroup<T> {
     }
 
     fn remove_weak_trees(&mut self, length: usize) {
-        self.scored.sort_unstable_by(|t1, t2| t1.partial_cmp(t2).unwrap_or(Equal));
-        self.scored.reverse();
-        self.scored.truncate(length);
+        if self.scored.len() > length {
+            self.scored.sort_unstable_by(|t1, t2| t1.partial_cmp(t2).unwrap_or(Equal).reverse());
+            self.scored.truncate(length);
+        }
     }
 
     fn execute_and_score(&mut self, objective: &T, data: &DataView, class: Class) {

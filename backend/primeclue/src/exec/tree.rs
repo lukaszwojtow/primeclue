@@ -137,11 +137,13 @@ impl Tree {
         } else {
             let guesses = self.execute(data);
             if !valid(&guesses) {
-                return None;
+                None
+            } else {
+                let outcomes = sort_guesses(guesses, data.outcomes());
+                let threshold = objective.threshold(&outcomes, class);
+                let score = objective.score(threshold, &outcomes, class);
+                Some(score)
             }
-            let outcomes = sort_guesses(guesses, data.outcomes());
-            let threshold = objective.threshold(&outcomes, class);
-            Some(objective.score(threshold, &outcomes, class))
         }
     }
 

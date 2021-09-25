@@ -117,6 +117,10 @@ impl DataView {
         (penalty, reward)
     }
 
+    pub fn class_items_count(&self, class: Class) -> Option<usize> {
+        self.class_count.get(&class).copied()
+    }
+
     pub fn class_count(&self) -> usize {
         self.class_count.len()
     }

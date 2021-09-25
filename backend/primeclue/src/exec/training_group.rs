@@ -22,7 +22,7 @@ use crate::data::outcome::Class;
 use crate::error::PrimeclueErr;
 use crate::exec::class_training::ClassTraining;
 use crate::exec::classifier::Classifier;
-use crate::exec::score::{AsObjective, Score};
+use crate::exec::score::{AsObjective, Objective, Score};
 use crate::exec::scored_tree::ScoredTree;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use serde::Serialize;
@@ -108,11 +108,10 @@ impl<'o, T: AsObjective> TrainingGroup<'o, T> {
             node_count += best_tree.node_count();
             training_score += class.training_score()?;
         }
-        Some(Stats {
-            generation: self.generation,
-            node_count,
-            training_score: training_score / self.classes.len() as f32,
-        })
+        if self.objective.objective() != Objective::Cost {
+            training_score /= self.classes.len() as f32
+        }
+        Some(Stats { generation: self.generation, node_count, training_score })
     }
 
     pub fn get_tree(&self, class: &Class) -> Option<&ScoredTree> {

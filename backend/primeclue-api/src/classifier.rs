@@ -83,6 +83,9 @@ fn print_cost_range(data1: &DataView, data2: &DataView) {
     let (max, min) = data2.cost_range();
     let random_guess = data2.random_guess_cost();
     println!("Cost range for test data {} {}, guessing randomly: {}", min, max, random_guess);
+    let sum =
+        data2.outcomes().iter().map(|outcome| outcome.reward() + outcome.penalty()).sum::<f32>();
+    println!("Test data average cost / point: {}", sum / data2.outcomes().len() as f32);
 }
 
 fn start_training(
@@ -97,6 +100,7 @@ fn start_training(
     let (training_data, verification_data, test_data) =
         split_into_sets(data_set, request.keep_unseen_data);
     print_cost_range(&training_data, &test_data);
+
     let forbidden_cols = parse_forbidden_columns(&request.forbidden_columns)?;
     let dst_dir = create_classifier_dir(request)?;
     let mut training = TrainingGroup::new(
@@ -128,7 +132,7 @@ fn start_training(
             }
         }
     }
-    save(&dst_dir, &mut training)?;
+    save(&dst_dir, &training)?;
     Ok(format!(
         "Training finished with average score: {:?}",
         training.classifier()?.average_score()
@@ -143,7 +147,7 @@ struct TrainingStatus {
 
 fn save<T: AsObjective>(
     dst_dir: &Path,
-    training: &mut TrainingGroup<'_, T>,
+    training: &TrainingGroup<'_, T>,
 ) -> Result<usize, PrimeclueErr> {
     let classifier = training.classifier()?;
     let mut s = Serializator::new();

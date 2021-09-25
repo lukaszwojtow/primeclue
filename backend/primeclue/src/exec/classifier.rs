@@ -25,7 +25,7 @@ use crate::exec::score::calculate_auc;
 use crate::exec::scored_tree::ScoredTree;
 use crate::serialization::{Deserializable, Serializable, Serializator};
 use serde::Serialize;
-use std::cmp::Ordering;
+use std::cmp::Ordering::Equal;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -93,7 +93,7 @@ impl Classifier {
 
     pub fn sorted_trees(&self) -> Vec<&ScoredTree> {
         let mut scores = self.trees.iter().collect::<Vec<_>>();
-        scores.sort_unstable_by(|&t1, &t2| t1.partial_cmp(t2).unwrap_or(Ordering::Equal));
+        scores.sort_unstable_by(|&t1, &t2| t1.partial_cmp(t2).unwrap_or(Equal));
         scores
     }
 
@@ -103,6 +103,7 @@ impl Classifier {
         for tree in trees {
             let values = tree.execute(data);
             let class_string = self.classes.get(&tree.score().class()).unwrap();
+            Classifier::show_adjusted_score(&values, class_string, data, tree.score().class());
             for (value, response) in values.iter().zip(responses.iter_mut()) {
                 match tree.guess(*value) {
                     Some(guess) if guess => *response = class_string,
@@ -111,6 +112,17 @@ impl Classifier {
             }
         }
         responses
+    }
+
+    fn show_adjusted_score(values: &[f32], label: &str, data: &DataView, class: Class) {
+        let mut guesses =
+            values.iter().copied().zip(data.outcomes().iter().copied()).collect::<Vec<_>>();
+        guesses
+            .sort_unstable_by(|(v1, _), (v2, _)| v1.partial_cmp(v2).unwrap_or(Equal).reverse());
+        guesses.truncate(data.class_items_count(class).unwrap());
+        let score =
+            guesses.iter().map(|(_, outcome)| outcome.calculate_cost(true, class)).sum::<f32>();
+        println!("Adjusted score for {}, guess count {}: {}", label, guesses.len(), score);
     }
 
     fn execute_for_auc(&self, data: &DataView) -> Option<f32> {

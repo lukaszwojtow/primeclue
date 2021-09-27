@@ -1,6 +1,9 @@
 <h1>Primeclue</h1>
 <h2>Data Mining / Artificial Intelligence</h2>
 
+<h3>Blog</h3>
+If you're interested about example usage or my ramblings about PrimeClue, please go
+to its blog: <a href="https://blog.primeclue.com">blog.primeclue.com</a>
 <h3>What does it do?</h3>
 Primeclue is a data mining software / library. It reads numerical data, pushes it through mathematical functions
 and yields classification.

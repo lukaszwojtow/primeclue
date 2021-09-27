@@ -105,9 +105,10 @@ impl Classifier {
             let class_string = self.classes.get(&tree.score().class()).unwrap();
             Classifier::show_adjusted_score(&values, class_string, data, tree.score().class());
             for (value, response) in values.iter().zip(responses.iter_mut()) {
-                match tree.guess(*value) {
-                    Some(guess) if guess => *response = class_string,
-                    _ => {}
+                if let Some(guess) = tree.guess(*value) {
+                    if guess {
+                        *response = class_string;
+                    }
                 }
             }
         }

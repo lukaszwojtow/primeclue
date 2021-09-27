@@ -100,7 +100,7 @@ fn start_training(
     let (training_data, verification_data, test_data) =
         split_into_sets(data_set, request.keep_unseen_data);
     print_cost_range(&training_data, &test_data);
-
+    print_test_class_item_count(&test_data);
     let forbidden_cols = parse_forbidden_columns(&request.forbidden_columns)?;
     let dst_dir = create_classifier_dir(request)?;
     let mut training = TrainingGroup::new(
@@ -137,6 +137,17 @@ fn start_training(
         "Training finished with average score: {:?}",
         training.classifier()?.average_score()
     ))
+}
+
+fn print_test_class_item_count(test_data: &DataView) {
+    println!("Test data label count:");
+    for class in test_data.class_map().keys() {
+        println!(
+            "\t{}: {} items",
+            test_data.class_map().get(class).unwrap(),
+            test_data.class_items_count(*class).unwrap()
+        );
+    }
 }
 
 #[derive(Serialize)]

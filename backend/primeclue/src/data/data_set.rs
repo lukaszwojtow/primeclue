@@ -57,7 +57,7 @@ impl Point {
 
 impl Serializable for Point {
     fn serialize(&self, s: &mut Serializator) {
-        s.add_items(&[&self.input, &self.outcome])
+        s.add_items(&[&self.input, &self.outcome]);
     }
 }
 

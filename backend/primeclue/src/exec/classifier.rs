@@ -100,9 +100,10 @@ impl Classifier {
     pub fn classify(&self, data: &DataView) -> Vec<&str> {
         let trees = self.sorted_trees();
         let mut responses = vec![""; data.cells().get(0, 0).len()];
-        for tree in trees {
+        for tree in &trees {
             let values = tree.execute(data);
             let class_string = self.classes.get(&tree.score().class()).unwrap();
+            println!("Score for class {}: {}", class_string, tree.score().value());
             Classifier::show_adjusted_score(&values, class_string, data, tree.score().class());
             for (value, response) in values.iter().zip(responses.iter_mut()) {
                 if let Some(guess) = tree.guess(*value) {
@@ -112,6 +113,17 @@ impl Classifier {
                 }
             }
         }
+        // not allow empty
+        // if let Some(tree) = trees.last() {
+        //     // let class_string = self.classes.get(&tree.score().class()).unwrap();
+        //     let class_string = self.classes.get(&Class::new(0)).unwrap();
+        //     responses.iter_mut().for_each(|response| {
+        //         if response == &"" {
+        //             *response = class_string;
+        //         }
+        //     })
+        // }
+        // end not allow empty
         responses
     }
 

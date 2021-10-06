@@ -104,7 +104,7 @@ impl Classifier {
             let values = tree.execute(data);
             let class_string = self.classes.get(&tree.score().class()).unwrap();
             println!("Score for class {}: {}", class_string, tree.score().value());
-            Classifier::show_adjusted_score(&values, class_string, data, tree.score().class());
+            // Classifier::show_adjusted_score(&values, class_string, data, tree.score().class());
             for (value, response) in values.iter().zip(responses.iter_mut()) {
                 if let Some(guess) = tree.guess(*value) {
                     if guess {
@@ -113,29 +113,7 @@ impl Classifier {
                 }
             }
         }
-        // not allow empty
-        // if let Some(tree) = trees.last() {
-        //     // let class_string = self.classes.get(&tree.score().class()).unwrap();
-        //     let class_string = self.classes.get(&Class::new(0)).unwrap();
-        //     responses.iter_mut().for_each(|response| {
-        //         if response == &"" {
-        //             *response = class_string;
-        //         }
-        //     })
-        // }
-        // end not allow empty
         responses
-    }
-
-    fn show_adjusted_score(values: &[f32], label: &str, data: &DataView, class: Class) {
-        let mut guesses =
-            values.iter().copied().zip(data.outcomes().iter().copied()).collect::<Vec<_>>();
-        guesses
-            .sort_unstable_by(|(v1, _), (v2, _)| v1.partial_cmp(v2).unwrap_or(Equal).reverse());
-        guesses.truncate(data.class_items_count(class).unwrap());
-        let score =
-            guesses.iter().map(|(_, outcome)| outcome.calculate_cost(true, class)).sum::<f32>();
-        println!("Adjusted score for {}, guess count {}: {}", label, guesses.len(), score);
     }
 
     fn execute_for_auc(&self, data: &DataView) -> Option<f32> {

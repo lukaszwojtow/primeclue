@@ -128,7 +128,7 @@ fn next_generation_bench(c: &mut Criterion) {
 }
 
 fn execute_tree_bench(c: &mut Criterion) {
-    let data = create_sample_data(1_000).into_view();
+    let data = create_sample_data(10_000).into_view();
     let mut rng = GET_RNG();
     let mut trees = vec![];
     for _ in 0..100 {
@@ -149,7 +149,7 @@ fn execute_tree_bench(c: &mut Criterion) {
 }
 
 fn create_tree_bench(c: &mut Criterion) {
-    let forbidden_cols = vec![1, 2, 3];
+    let data = create_sample_data(10_000).into_view();
     c.bench_function("create_tree", |b| {
         b.iter(|| {
             let mut rng = GET_RNG();
@@ -158,9 +158,9 @@ fn create_tree_bench(c: &mut Criterion) {
                 let data_prob = rng.gen_range(0.01..0.99);
                 let branch_prob = rng.gen_range(0.01..0.99);
                 let _ = Tree::new(
-                    black_box(&InputShape::new(1, 6)),
+                    black_box(data.input_shape()),
                     max_depth,
-                    &forbidden_cols,
+                    &[],
                     branch_prob,
                     data_prob,
                 );

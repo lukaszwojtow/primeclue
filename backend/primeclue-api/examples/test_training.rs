@@ -57,7 +57,7 @@ fn attempt_training(
     test_data: DataView,
 ) -> f32 {
     let mut training =
-        TrainingGroup::new(training_data, verification_data, &Objective::Accuracy, 100, &[])
+        TrainingGroup::new(training_data, verification_data, Objective::Accuracy, 100, &[])
             .unwrap();
     let max_training_duration = Duration::from_secs(5 * 60);
     let end_time = Instant::now().checked_add(max_training_duration).unwrap();

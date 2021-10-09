@@ -110,7 +110,7 @@ impl ScoredTree {
     }
 
     pub fn execute_for_score(&self, data: &DataView) -> Option<Score> {
-        self.tree.execute_for_score(data, self.score.class(), &self.score.objective())
+        self.tree.execute_for_score(data, self.score.class(), self.score.objective())
     }
 
     pub fn get_start_node(&self) -> &Weighted {

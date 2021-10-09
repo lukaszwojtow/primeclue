@@ -22,22 +22,22 @@ use crate::data::outcome::Class;
 use crate::error::PrimeclueErr;
 use crate::exec::class_training::ClassTraining;
 use crate::exec::classifier::Classifier;
-use crate::exec::score::{AsObjective, Objective, Score};
+use crate::exec::score::{Objective, Score};
 use crate::exec::scored_tree::ScoredTree;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use serde::Serialize;
 
 #[derive(Debug)]
-pub struct TrainingGroup<'o, T: AsObjective> {
+pub struct TrainingGroup {
     generation: u32,
     training_data: DataView,
     verification_data: DataView,
-    classes: Vec<ClassTraining<'o, T>>,
-    objective: &'o T,
+    classes: Vec<ClassTraining>,
+    objective: Objective,
     thread_pool: ThreadPool,
 }
 
-impl<'o, T: AsObjective> TrainingGroup<'o, T> {
+impl TrainingGroup {
     /// Creates a new [`TrainingGroup`] that can be used to train a classifier through
     /// its [`next_generation`] method.
     ///
@@ -50,7 +50,7 @@ impl<'o, T: AsObjective> TrainingGroup<'o, T> {
     pub fn new(
         training_data: DataView,
         verification_data: DataView,
-        objective: &'o T,
+        objective: Objective,
         size: usize,
         forbidden_cols: &[usize],
     ) -> Result<Self, PrimeclueErr> {
@@ -108,7 +108,7 @@ impl<'o, T: AsObjective> TrainingGroup<'o, T> {
             node_count += best_tree.node_count();
             training_score += class.training_score()?;
         }
-        if self.objective.objective() != Objective::Cost {
+        if self.objective != Objective::Cost {
             training_score /= self.classes.len() as f32
         }
         Some(Stats { generation: self.generation, node_count, training_score })
@@ -187,7 +187,7 @@ mod test {
         let data = create_simple_data(100);
         let (training_data, verification_data, _) = data.shuffle().into_3_views_split();
         let mut training_group =
-            TrainingGroup::new(training_data, verification_data, &Auc, 3, &Vec::new()).unwrap();
+            TrainingGroup::new(training_data, verification_data, Auc, 3, &Vec::new()).unwrap();
         training_group.next_generation();
         training_group.next_generation();
         training_group.next_generation();
@@ -198,7 +198,7 @@ mod test {
     fn test_get_tree() {
         let (training_data, verification_data) = create_simple_data(1_000).into_2_views_split();
         let mut training_group =
-            TrainingGroup::new(training_data, verification_data, &Auc, 10, &Vec::new()).unwrap();
+            TrainingGroup::new(training_data, verification_data, Auc, 10, &Vec::new()).unwrap();
 
         for _ in 0..1_000 {
             training_group.next_generation();

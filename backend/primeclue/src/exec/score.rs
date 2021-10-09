@@ -24,33 +24,6 @@ use core::fmt;
 use std::cmp::Ordering;
 use std::cmp::Ordering::Equal;
 
-pub trait AsObjective: Sync + Send {
-    fn threshold(&self, outcomes: &[(f32, Outcome)], class: Class) -> Threshold;
-
-    fn objective(&self) -> Objective;
-
-    fn score(&self, threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> Score;
-}
-
-impl AsObjective for Objective {
-    fn threshold(&self, outcomes: &[(f32, Outcome)], class: Class) -> Threshold {
-        self.threshold(outcomes, class)
-    }
-
-    fn objective(&self) -> Objective {
-        *self
-    }
-
-    fn score(&self, threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> Score {
-        let value = match self {
-            Objective::Auc => calculate_auc(outcomes, class),
-            Objective::Accuracy => calculate_accuracy(threshold, outcomes, class),
-            Objective::Cost => calculate_cost(threshold, outcomes, class),
-        };
-        Score { objective: *self, class, value, threshold }
-    }
-}
-
 /// An enum used to gauge a classifier goodness. Training is performed to maximize this
 /// value.
 /// * `Cost` - use cost function with reward and penalty for correct / incorrect predictions respectively
@@ -70,6 +43,20 @@ impl Objective {
             Objective::Auc => auc_threshold(outcomes, class),
             Objective::Accuracy => accuracy_threshold(outcomes, class),
         }
+    }
+
+    pub fn score(
+        &self,
+        threshold: Threshold,
+        outcomes: &[(f32, Outcome)],
+        class: Class,
+    ) -> Score {
+        let value = match self {
+            Objective::Auc => calculate_auc(outcomes, class),
+            Objective::Accuracy => calculate_accuracy(threshold, outcomes, class),
+            Objective::Cost => calculate_cost(threshold, outcomes, class),
+        };
+        Score { objective: *self, class, value, threshold }
     }
 }
 

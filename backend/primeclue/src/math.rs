@@ -22,7 +22,9 @@ pub fn valid(values: &[f32]) -> bool {
         if !v.is_finite() {
             return false;
         }
-        change = change || (*v - values[0]).abs() > 0.001;
+        if !change {
+            change = (*v - values[0]).abs() > 0.001;
+        }
     }
     change
 }

@@ -26,6 +26,7 @@ use primeclue::exec::class_training::ClassTraining;
 use primeclue::exec::score::Objective::{Auc, Cost};
 use primeclue::exec::training_group::TrainingGroup;
 use primeclue::exec::tree::Tree;
+use primeclue::math;
 use rand::Rng;
 use std::collections::HashMap;
 
@@ -50,21 +51,13 @@ fn select_node(c: &mut Criterion) {
     });
 }
 
-fn check_nans_same(c: &mut Criterion) {
-    let vec: Vec<f64> = vec![42.42; 100_000];
+fn valid(c: &mut Criterion) {
+    let vec: Vec<f32> = vec![42.42; 100_000];
 
-    c.bench_function("check_nans_same", |b| {
+    c.bench_function("valid", |b| {
         b.iter(|| {
-            let mut changed = false;
-            if !vec.iter().any(|f| !f.is_finite()) {
-                for v in &vec {
-                    if !v.is_finite() {
-                        break;
-                    }
-                    changed = changed || (*v - vec[0]).abs() > 0.001;
-                }
-                black_box(changed);
-            }
+            let valid = math::valid(&vec);
+            black_box(valid);
         })
     });
 }
@@ -176,7 +169,7 @@ criterion_group!(
     next_generation_bench,
     training_group_generation_bench,
     select_node,
-    check_nans_same,
+    valid,
     vec_add_fast,
     threshold_cost_bench
 );

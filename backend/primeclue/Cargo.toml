@@ -2,7 +2,7 @@
 name = "primeclue"
 version = "0.5.0"
 authors = ["Łukasz Wojtów <lukasz.wojtow@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "AGPL-3.0"
 
 [dependencies]

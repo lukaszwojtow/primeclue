@@ -235,7 +235,7 @@ pub fn calculate_auc(outcomes: &[(f32, Outcome)], class: Class) -> f32 {
 fn calculate_accuracy(threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> f32 {
     let mut correct = 0;
     let mut total = 0;
-    for (guess, outcome) in outcomes.iter() {
+    for (guess, outcome) in outcomes {
         if let Some(guess_bool) = threshold.bool(*guess) {
             total += 1;
             if (outcome.class() == class && guess_bool)
@@ -251,7 +251,7 @@ fn calculate_accuracy(threshold: Threshold, outcomes: &[(f32, Outcome)], class: 
 #[must_use]
 fn calculate_cost(threshold: Threshold, outcomes: &[(f32, Outcome)], class: Class) -> f32 {
     let mut cost = 0.0;
-    for (guess, outcome) in outcomes.iter() {
+    for (guess, outcome) in outcomes {
         if let Some(b) = threshold.bool(*guess) {
             cost += outcome.calculate_cost(b, class);
         }

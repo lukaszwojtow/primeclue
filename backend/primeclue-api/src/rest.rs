@@ -140,10 +140,11 @@ fn classifier_create_handler(
 }
 
 pub(crate) async fn start_web() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    let executor = web::Data::new(Mutex::new(Executor::create()));
+    HttpServer::new(move || {
         App::new()
             .wrap(Cors::permissive())
-            .app_data(web::Data::new(Mutex::new(Executor::create())))
+            .app_data(executor.clone())
             .app_data(web::JsonConfig::default().limit(1024 * 1024 * 32))
             .route("/data/classes", web::to(data_classes_handler).method(http::Method::POST))
             .route("/data/import", web::to(data_import_handler).method(http::Method::POST))

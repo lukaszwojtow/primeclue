@@ -39,7 +39,7 @@ pub struct ClassifierScore {
 }
 
 /// A structure containing a classifier trained via [`TrainingGroup`]
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Classifier {
     classes: HashMap<Class, String>,
     trees: Vec<ScoredTree>,
@@ -103,8 +103,6 @@ impl Classifier {
         for tree in &trees {
             let values = tree.execute(data);
             let class_string = self.classes.get(&tree.score().class()).unwrap();
-            println!("Score for class {}: {}", class_string, tree.score().value());
-            // Classifier::show_adjusted_score(&values, class_string, data, tree.score().class());
             for (value, response) in values.iter().zip(responses.iter_mut()) {
                 if let Some(guess) = tree.guess(*value) {
                     if guess {

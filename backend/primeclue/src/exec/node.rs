@@ -21,7 +21,6 @@ use crate::contrand::GET_RNG;
 use crate::data::{Data, InputShape};
 use crate::exec::functions::{DoubleArgFunction, MathConst, SingleArgFunction};
 use crate::exec::functions::{MATH_CONSTANTS, ONE_ARG_FUNCTIONS, TWO_ARG_FUNCTIONS};
-use crate::math::std_dev;
 use crate::serialization::deserializable::Deserializable;
 use crate::serialization::serializator::Serializator;
 use crate::serialization::Serializable;
@@ -104,7 +103,6 @@ impl Weighted {
         let mut v = match self.n.deref() {
             Node::MathConstant(v) => vec![v.value(); data.get(0, 0).len()],
             Node::DataValue(r, c) => data.get(*r, *c).clone(),
-            Node::StdDev(r, c) => std_dev(data.get(*r, *c)),
             Node::SingleArgFunction(f, n) => (f.fun)(n.execute(data)),
             Node::DoubleArgFunction(f, n1, n2) => (f.fun)(n1.execute(data), &n2.execute(data)),
         };
@@ -190,13 +188,7 @@ impl Weighted {
 
     fn new_data_value_node(input_shape: &InputShape, forbidden_cols: &[usize]) -> Weighted {
         let (row, column) = input_shape.random_row_column(forbidden_cols);
-        let n = if GET_RNG().gen_bool(0.95) {
-            Node::DataValue(row, column)
-        } else {
-            Node::StdDev(row, column)
-        };
-        let w = Weight::generate();
-        Weighted { w, n: Box::new(n) }
+        Weighted { w: Weight::generate(), n: Box::new(Node::DataValue(row, column)) }
     }
 
     pub fn get_used_columns(&self) -> HashSet<usize> {
@@ -214,7 +206,7 @@ impl Weighted {
                     node_queue.push(n.n.deref());
                 }
                 Node::MathConstant(_) => {}
-                Node::DataValue(_, c) | Node::StdDev(_, c) => {
+                Node::DataValue(_, c) => {
                     columns.insert(*c);
                 }
             }
@@ -236,7 +228,7 @@ impl Weighted {
                 Node::SingleArgFunction(_, n) => {
                     next_node = n;
                 }
-                Node::DataValue(_, _) | Node::MathConstant(_) | Node::StdDev(_, _) => {
+                Node::DataValue(_, _) | Node::MathConstant(_) => {
                     if !node_queue.is_empty() {
                         next_node = node_queue.remove(node_queue.len() - 1);
                     }
@@ -260,7 +252,7 @@ impl Weighted {
                 Node::SingleArgFunction(_, ref mut n) => {
                     next_node = n.borrow_mut();
                 }
-                Node::DataValue(_, _) | Node::MathConstant(_) | Node::StdDev(_, _) => {
+                Node::DataValue(_, _) | Node::MathConstant(_) => {
                     if !node_queue.is_empty() {
                         next_node = node_queue.remove(node_queue.len() - 1);
                     }
@@ -288,7 +280,6 @@ impl Deserializable for Weighted {
 #[derive(Debug, PartialEq, Clone)]
 pub enum Node {
     DataValue(usize, usize),
-    StdDev(usize, usize),
     MathConstant(&'static MathConst),
     SingleArgFunction(&'static SingleArgFunction, Weighted),
     DoubleArgFunction(&'static DoubleArgFunction, Weighted, Weighted),
@@ -298,7 +289,6 @@ impl Serializable for Node {
     fn serialize(&self, s: &mut Serializator) {
         match self {
             Node::DataValue(row, column) => s.add_items(&[&"DataValue".to_owned(), row, column]),
-            Node::StdDev(row, column) => s.add_items(&[&"StdDev".to_owned(), row, column]),
             Node::MathConstant(constant) => {
                 s.add_items(&[&"Constant".to_owned(), constant.to_owned()])
             }
@@ -320,11 +310,6 @@ impl Deserializable for Node {
                 let row = usize::deserialize(s)?;
                 let column = usize::deserialize(s)?;
                 Ok(Node::DataValue(row, column))
-            }
-            "StdDev" => {
-                let row = usize::deserialize(s)?;
-                let column = usize::deserialize(s)?;
-                Ok(Node::StdDev(row, column))
             }
             "Constant" => {
                 let c = Deserializable::deserialize(s)?;
@@ -376,8 +361,7 @@ impl Node {
                 *f = TWO_ARG_FUNCTIONS.choose(&mut rng).unwrap()
             }
             Node::MathConstant(ref mut c) => *c = MATH_CONSTANTS.choose(&mut rng).unwrap(),
-            Node::DataValue(ref mut row, ref mut column)
-            | Node::StdDev(ref mut row, ref mut column) => {
+            Node::DataValue(ref mut row, ref mut column) => {
                 let (r, c) = input_shape.random_row_column(forbidden_cols);
                 *row = r;
                 *column = c;
@@ -388,7 +372,7 @@ impl Node {
     #[must_use]
     pub fn node_count(&self) -> usize {
         1 + match self {
-            Node::MathConstant(_) | Node::DataValue(_, _) | Node::StdDev(_, _) => 0,
+            Node::MathConstant(_) | Node::DataValue(_, _) => 0,
             Node::SingleArgFunction(_, n) => n.n.node_count(),
             Node::DoubleArgFunction(_, n1, n2) => n1.n.node_count() + n2.n.node_count(),
         }

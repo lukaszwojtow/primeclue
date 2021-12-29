@@ -111,14 +111,6 @@ impl ClassRequest {
     }
 }
 
-#[derive(Deserialize, Debug, Copy, Clone)]
-pub struct Rewards {
-    correct_true: f32,
-    incorrect_true: f32,
-    correct_false: f32,
-    incorrect_false: f32,
-}
-
 pub fn build_data_set(r: &ClassRequest) -> Result<DataSet, PrimeclueErr> {
     let data = split_to_vec(&r.content, &r.separator, r.ignore_first_row);
     let class_producer = class_producer(r, &data)?;

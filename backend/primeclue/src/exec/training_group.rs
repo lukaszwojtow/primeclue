@@ -134,9 +134,8 @@ impl TrainingGroup {
             }
         }
         let classes = self.training_data.class_map().clone();
-        Classifier::new(classes, trees).map_err(|e| {
-            PrimeclueErr::from(format!("Unable to create a classifier: {}", e.to_string()))
-        })
+        Classifier::new(classes, trees)
+            .map_err(|e| PrimeclueErr::from(format!("Unable to create a classifier: {}", e)))
     }
 }
 

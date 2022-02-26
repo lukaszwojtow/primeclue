@@ -48,12 +48,12 @@ impl Deserializable for Weight {
 
 impl Weight {
     pub fn generate() -> Self {
-        Weight { 0: GET_RNG().gen_range(-1.618..1.618) }
+        Weight(GET_RNG().gen_range(-1.618..1.618))
     }
 
     #[must_use]
     pub fn from(v: f32) -> Weight {
-        Weight { 0: v }
+        Weight(v)
     }
 }
 

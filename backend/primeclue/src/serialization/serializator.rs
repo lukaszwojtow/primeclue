@@ -58,7 +58,7 @@ impl Serializator {
     }
 
     pub fn add_string(&mut self, v: String) {
-        let v = v.replace(" ", PRIMECLUE_SPACE_SUBSTITUTE);
+        let v = v.replace(' ', PRIMECLUE_SPACE_SUBSTITUTE);
         self.strings.push(v);
     }
 

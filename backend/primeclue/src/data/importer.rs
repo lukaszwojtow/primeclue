@@ -138,7 +138,7 @@ pub fn build_data_set(r: &ClassRequest) -> Result<DataSet, PrimeclueErr> {
 
 fn build_data_point(
     r: &ClassRequest,
-    numbers: &mut Vec<Vec<f32>>,
+    numbers: &mut [Vec<f32>],
     row_num: usize,
     outcome: Class,
     reward: f32,
@@ -170,7 +170,7 @@ pub fn get_header_row(
     }
 }
 pub fn remove_column<'a>(
-    content: &mut Vec<Vec<&'a str>>,
+    content: &mut [Vec<&'a str>],
     column: usize,
 ) -> Result<Vec<&'a str>, PrimeclueErr> {
     let mut col_values = Vec::with_capacity(content.len());

@@ -67,7 +67,7 @@ impl<T> Data<T> {
             ))
         } else {
             self.input_shape.update(self.input_shape.rows() + 1, row.len());
-            self.data.extend(row.into_iter());
+            self.data.extend(row);
             Ok(self.input_shape.rows())
         }
     }

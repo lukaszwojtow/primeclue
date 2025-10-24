@@ -181,7 +181,6 @@ impl PartialOrd for Score {
     }
 }
 
-
 impl PartialEq for Score {
     fn eq(&self, other: &Self) -> bool {
         match self.partial_cmp(other) {

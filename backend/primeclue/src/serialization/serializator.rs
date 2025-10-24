@@ -128,7 +128,7 @@ impl Serializator {
     }
 
     fn calc_checksum(&self) -> u128 {
-        const LIMIT: u128 = u128::max_value() >> 7;
+        const LIMIT: u128 = u128::MAX >> 7;
         let mut cs: u128 = 1;
         for string in &self.strings {
             for byte in string.as_bytes() {

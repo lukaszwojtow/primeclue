@@ -23,7 +23,6 @@ use crate::data::{Input, Outcome, Point};
 use crate::error::PrimeclueErr;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::ops::Deref;
 
 fn create_input_data(
     line: usize,
@@ -263,9 +262,8 @@ pub fn build_class_map(
     for (i, row) in data.iter().enumerate() {
         let v = row
             .get(column)
-            .ok_or_else(|| PrimeclueErr::from(format!("No column {} in row {}", column, i)))?
-            .deref();
-        if !v.is_empty() && !classes.contains_key(v) {
+            .ok_or_else(|| PrimeclueErr::from(format!("No column {} in row {}", column, i)))?;
+        if !v.is_empty() && !classes.contains_key(*v) {
             classes.insert(v.to_string(), Class::new(classes.len() as u16));
         }
     }

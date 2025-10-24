@@ -60,7 +60,7 @@ impl Settings {
 
 fn create_dir(dir: &Path) -> Result<(), String> {
     if !dir.exists() {
-        fs::create_dir_all(&dir)
+        fs::create_dir_all(dir)
             .map_err(|e| format!("Unable to create directory {:?}: {}", dir, e))
     } else if dir.is_dir() {
         Ok(())

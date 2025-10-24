@@ -293,10 +293,10 @@ impl Serializable for Node {
                 s.add_items(&[&"Constant".to_owned(), constant.to_owned()])
             }
             Node::SingleArgFunction(fun, node) => {
-                s.add_items(&[&"OneArgNode".to_owned(), fun.to_owned(), node.deref()])
+                s.add_items(&[&"OneArgNode".to_owned(), fun.to_owned(), node])
             }
             Node::DoubleArgFunction(fun, n1, n2) => {
-                s.add_items(&[&"TwoArgNode".to_owned(), fun.to_owned(), n1.deref(), n2.deref()])
+                s.add_items(&[&"TwoArgNode".to_owned(), fun.to_owned(), n1, n2])
             }
         }
     }

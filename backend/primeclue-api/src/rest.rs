@@ -22,7 +22,7 @@ use crate::data::{classes, import};
 use crate::executor::{Executor, Job, JobId, Status, Termination};
 use crate::{classifier, data};
 use actix_cors::Cors;
-use actix_web::{http, web, App, HttpResponse, HttpServer};
+use actix_web::{web, App, HttpResponse, HttpServer};
 use primeclue::data::importer::ClassRequest;
 use serde::Serialize;
 use std::sync::mpsc::channel;

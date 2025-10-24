@@ -33,9 +33,6 @@
     variant_size_differences
 )]
 
-#[macro_use]
-extern crate human_panic;
-
 use crate::rest::SERVER_ADDR;
 use crate::rest::SERVER_PORT;
 
@@ -49,7 +46,6 @@ mod rest;
 
 #[actix_web::main]
 async fn main() -> Result<(), std::io::Error> {
-    setup_panic!();
     let result = rest::start_web().await;
     if let Err(err) = result {
         eprintln!(

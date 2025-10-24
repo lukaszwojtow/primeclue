@@ -202,10 +202,16 @@ fn relu(v: f32) -> f32 {
     v.max(0.0)
 }
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct SingleArgFunction {
     pub name: &'static str,
     pub fun: fn(Vec<f32>) -> Vec<f32>,
+}
+
+impl PartialEq for SingleArgFunction {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl Serializable for SingleArgFunction {

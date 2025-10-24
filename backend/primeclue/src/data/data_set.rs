@@ -247,7 +247,6 @@ impl DataSet {
         self.points[0].input.input_shape() // TODO check for empty points
     }
 
-    #[must_use]
     pub fn iter(&self) -> Iter<'_, Point> {
         self.points.iter()
     }

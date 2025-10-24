@@ -160,7 +160,7 @@ fn save(dst_dir: &Path, training: &TrainingGroup) -> Result<usize, PrimeclueErr>
     let classifier = training.classifier()?;
     let mut s = Serializator::new();
     classifier.serialize(&mut s);
-    s.save(dst_dir, CLASSIFIER_FILE_NAME).map_err(PrimeclueErr::from)
+    s.save(dst_dir, CLASSIFIER_FILE_NAME)
 }
 
 fn read_data(request: &CreateRequest) -> Result<DataSet, PrimeclueErr> {
@@ -175,7 +175,7 @@ fn read_data(request: &CreateRequest) -> Result<DataSet, PrimeclueErr> {
 
 pub(crate) fn list() -> Result<Vec<String>, PrimeclueErr> {
     let settings = Settings::new()?;
-    let list = read_dir(&settings.classifier_dir())?;
+    let list = read_dir(settings.classifier_dir())?;
     read_files(list)
 }
 
@@ -255,7 +255,7 @@ impl ClassifyRequest {
         }
         names.sort();
         for name in &names {
-            let path = path.join(&name);
+            let path = path.join(name);
             let classifier = Classifier::deserialize(&mut Serializator::load(&path)?)?;
             classifiers.push(classifier);
         }

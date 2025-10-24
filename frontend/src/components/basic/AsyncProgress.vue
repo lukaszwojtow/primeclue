@@ -2,16 +2,18 @@
     <div>
         <el-dialog
                 :title="title"
-                :visible.sync="visible"
+                v-model:visible="visible"
                 width="30%"
                 center>
             <span>{{this.message}}</span>
             <div v-if="progress">
                 <el-progress :text-inside="true" :stroke-width="26" :percentage="percentage"/>
             </div>
-            <span slot="footer" class="dialog-footer">
+            <template v-slot:footer>
+<span  class="dialog-footer">
                 <el-button @click="visible = false">{{buttonText}}</el-button>
             </span>
+</template>
         </el-dialog>
     </div>
 </template>

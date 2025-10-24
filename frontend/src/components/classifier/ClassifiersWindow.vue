@@ -13,14 +13,16 @@
             <el-table-column
                     label="Operations"
                     width="200">
-                <template slot-scope="scope">
+                <template v-slot="scope">
                   <el-popconfirm style="margin-right: 20pt" title="Are you sure to delete" cancel-button-text="Cancel" confirm-button-text="Delete" v-on:confirm="remove(scope.$index)">
-                    <el-button
-                        slot="reference"
+                    <template v-slot:reference>
+<el-button
+                        
                         type="text"
                         size="small">
                       Remove
                     </el-button>
+</template>
                   </el-popconfirm>
                     <el-button
                             @click.native.prevent="classify(scope.$index)"

@@ -140,7 +140,8 @@
                 let rows = this.content.split('\n');
                 this.firstRowIsHeader = !this.firstRowHasNumbers(rows[0]);
                 let trs = this.getTableHeader(rows[0].trim().split(this.fieldSeparator));
-                for (let i = 0; i < rows.length; i++) {
+		let endIndex = Math.min(rows.length, 100);
+                for (let i = 0; i < endIndex; i++) {
                     if (rows[i] === "") {
                         continue;
                     }

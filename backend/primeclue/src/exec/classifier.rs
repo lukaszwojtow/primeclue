@@ -170,7 +170,7 @@ impl Classifier {
         } else {
             let mut outcomes =
                 values.into_iter().zip(data.outcomes().iter().copied()).collect::<Vec<_>>();
-            outcomes.sort_unstable_by(|(v1, _), (v2, _)| v1.partial_cmp(v2).unwrap());
+            outcomes.sort_unstable_by(|(v1, _), (v2, _)| v1.total_cmp(v2));
             Some(calculate_auc(&outcomes, tree.score().class()))
         }
     }

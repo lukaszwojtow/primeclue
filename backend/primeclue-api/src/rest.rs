@@ -37,7 +37,7 @@ struct StatusResponse {
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn job_status_handler(path: web::Path<JobId>, data: web::Data<Mutex<Executor>>) -> HttpResponse {
+async fn job_status_handler(path: web::Path<JobId>, data: web::Data<Mutex<Executor>>) -> HttpResponse {
     let id = path.into_inner();
     let mut executor = data.lock().unwrap();
     let status = executor.status(id);
@@ -53,7 +53,7 @@ fn job_status_handler(path: web::Path<JobId>, data: web::Data<Mutex<Executor>>) 
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn job_terminate_handler(
+async fn job_terminate_handler(
     path: web::Path<JobId>,
     data: web::Data<Mutex<Executor>>,
 ) -> HttpResponse {
@@ -65,7 +65,7 @@ fn job_terminate_handler(
     }
 }
 
-fn data_remove_handler(path: web::Path<String>) -> HttpResponse {
+async fn data_remove_handler(path: web::Path<String>) -> HttpResponse {
     let name = path.into_inner();
     match data::remove(&name) {
         Ok(_) => HttpResponse::Ok().finish(),
@@ -73,21 +73,21 @@ fn data_remove_handler(path: web::Path<String>) -> HttpResponse {
     }
 }
 
-fn data_list_handler() -> HttpResponse {
+async fn data_list_handler() -> HttpResponse {
     match data::list() {
         Ok(list) => HttpResponse::Ok().json(list),
         Err(error) => HttpResponse::InternalServerError().body(format!("Error: {}", error)),
     }
 }
 
-fn classifier_list_handler() -> HttpResponse {
+async fn classifier_list_handler() -> HttpResponse {
     match classifier::list() {
         Ok(list) => HttpResponse::Ok().json(list),
         Err(error) => HttpResponse::InternalServerError().body(format!("Error: {}", error)),
     }
 }
 
-fn classifier_remove_handler(path: web::Path<String>) -> HttpResponse {
+async fn classifier_remove_handler(path: web::Path<String>) -> HttpResponse {
     let name = path.into_inner();
     match classifier::remove(&name) {
         Ok(_) => HttpResponse::Ok().finish(),
@@ -95,7 +95,7 @@ fn classifier_remove_handler(path: web::Path<String>) -> HttpResponse {
     }
 }
 
-fn data_classes_handler(r: web::Json<ClassRequest>) -> HttpResponse {
+async fn data_classes_handler(r: web::Json<ClassRequest>) -> HttpResponse {
     match classes(&r.into_inner()) {
         Ok(classes) => HttpResponse::Ok().json(classes),
         Err(error) => HttpResponse::BadRequest().body(format!("Error: {}", error)),
@@ -103,7 +103,7 @@ fn data_classes_handler(r: web::Json<ClassRequest>) -> HttpResponse {
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn data_import_handler(
+async fn data_import_handler(
     r: web::Json<ClassRequest>,
     data: web::Data<Mutex<Executor>>,
 ) -> HttpResponse {
@@ -118,7 +118,7 @@ fn id_ok_response(id: u64) -> HttpResponse {
     HttpResponse::Ok().body(format!("{}", id))
 }
 
-fn classifier_classify_handler(r: web::Json<ClassifyRequest>) -> HttpResponse {
+async fn classifier_classify_handler(r: web::Json<ClassifyRequest>) -> HttpResponse {
     let request = r.into_inner();
     match request.classify() {
         Ok(results) => HttpResponse::Ok().body(results),
@@ -127,7 +127,7 @@ fn classifier_classify_handler(r: web::Json<ClassifyRequest>) -> HttpResponse {
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn classifier_create_handler(
+async fn classifier_create_handler(
     r: web::Json<CreateRequest>,
     data: web::Data<Mutex<Executor>>,
 ) -> HttpResponse {
@@ -145,35 +145,17 @@ pub(crate) async fn start_web() -> std::io::Result<()> {
         App::new()
             .wrap(Cors::permissive())
             .app_data(executor.clone())
-            .app_data(web::JsonConfig::default().limit(1024 * 1024 * 32))
-            .route("/data/classes", web::to(data_classes_handler).method(http::Method::POST))
-            .route("/data/import", web::to(data_import_handler).method(http::Method::POST))
-            .route("/data/list", web::to(data_list_handler).method(http::Method::GET))
-            .route(
-                "/data/remove/{name}",
-                web::to(data_remove_handler).method(http::Method::POST),
-            )
-            .route(
-                "/classifier/classify",
-                web::to(classifier_classify_handler).method(http::Method::POST),
-            )
-            .route(
-                "/classifier/create",
-                web::to(classifier_create_handler).method(http::Method::POST),
-            )
-            .route(
-                "/classifier/list",
-                web::to(classifier_list_handler).method(http::Method::GET),
-            )
-            .route(
-                "/classifier/remove/{name}",
-                web::to(classifier_remove_handler).method(http::Method::POST),
-            )
-            .route("/job/{id}/status", web::to(job_status_handler).method(http::Method::GET))
-            .route(
-                "/job/{id}/terminate",
-                web::to(job_terminate_handler).method(http::Method::PUT),
-            )
+            .app_data(web::JsonConfig::default().limit(1024 * 1024 * 1024))
+            .route("/data/classes", web::post().to(data_classes_handler))
+            .route("/data/import", web::post().to(data_import_handler))
+            .route("/data/list", web::get().to(data_list_handler))
+            .route("/data/remove/{name}", web::post().to(data_remove_handler))
+            .route("/classifier/classify", web::post().to(classifier_classify_handler))
+            .route("/classifier/create", web::post().to(classifier_create_handler))
+            .route("/classifier/list", web::get().to(classifier_list_handler))
+            .route("/classifier/remove/{name}", web::post().to(classifier_remove_handler))
+            .route("/job/{id}/status", web::get().to(job_status_handler))
+            .route("/job/{id}/terminate", web::put().to(job_terminate_handler))
     })
     .bind((SERVER_ADDR, SERVER_PORT))?
     .run()

@@ -177,18 +177,10 @@ impl fmt::Display for Score {
 
 impl PartialOrd for Score {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        if self.objective == other.objective {
-            let diff = (self.value / other.value - 1.0).abs() > 0.001;
-            if diff {
-                self.value.partial_cmp(&other.value)
-            } else {
-                Some(Equal)
-            }
-        } else {
-            None
-        }
+        Some(self.value.total_cmp(&other.value))
     }
 }
+
 
 impl PartialEq for Score {
     fn eq(&self, other: &Self) -> bool {
@@ -289,7 +281,7 @@ fn cost_threshold(outcomes: &[(f32, Outcome)], class: Class) -> Threshold {
         true_cost += true_reward;
         cost_list.push((guess, outcome, false_reward + true_cost));
     }
-    cost_list.sort_by(|(_, _, cost1), (_, _, cost2)| cost1.partial_cmp(cost2).unwrap());
+    cost_list.sort_by(|(_, _, cost1), (_, _, cost2)| cost1.total_cmp(cost2));
     Threshold::new(cost_list.last().unwrap().0)
 }
 
@@ -516,7 +508,7 @@ mod test {
             let penalty = rng.gen_range(-1.0..0.0);
             outcomes.push((guess, Outcome::new(Class::new(1), reward, penalty)));
         }
-        outcomes.sort_by(|(g1, _), (g2, _)| g1.partial_cmp(g2).unwrap());
+        outcomes.sort_by(|(g1, _), (g2, _)| g1.total_cmp(g2));
         outcomes
     }
 }
